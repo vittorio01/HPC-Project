@@ -25,4 +25,4 @@ compile: $(COMPILER) $(PRG)/main.c
 run.sh:
 	
 clear: 
-	rm -rf out/ log/ run.sh
+	rm -rf out/ run.sh
