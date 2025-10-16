@@ -1,0 +1,4 @@
+Hello world from process rank 2 out of 4 processors
+Hello world from process rank 3 out of 4 processors
+Hello world from process rank 1 out of 4 processors
+Hello world from process rank 0 out of 4 processors
