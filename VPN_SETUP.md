@@ -10,7 +10,7 @@ First download few requirements.
 ```
 sudo apt install -y openconnect git
 ```
-The clone the source code of 1.4.9 version of `GlobalProtect-openconnect` from the GitHub repository (please do not use newer versions since they include a 10 days trial or a license).
+Then clone the source code of 1.4.9 version of `GlobalProtect-openconnect` from the GitHub repository (please do not use newer versions since they include a 10 days trial or a license).
 ```
 $ wget -P /tmp https://github.com/yuezk/GlobalProtect-openconnect/archive/refs/tags/v1.4.9.tar.gz
 $ tar -xvf /tmp/v1.4.9.tar.gz -C /tmp
@@ -21,13 +21,13 @@ sudo mv /tmp/GlobalProtect-openconnect-1.4.9 /opt/GlobalProtect-openconnect
 ```
 Then move into that directory and start the installation. A dedicated script will automatically install the requirements for building and installing the program. 
 ```
-cd /opt/Globalprotect-openconnect
-sudo bash /opt/Globalprotect-openconnect/scripts/install-ubuntu.sh
+cd /opt/GlobalProtect-openconnect
+sudo bash /opt/GlobalProtect-openconnect/scripts/install-ubuntu.sh
 ```
 After the execution of the script the application `gpclient` and the service `gpservice` should be automatically enabled. 
 To connect to the ssh first edit the configuration file located in `/etc/gpservice/gp.conf`
 ```
-$ sudo vim /etc/gpservice/gp.conf
+$ sudo nano /etc/gpservice/gp.conf
 ```
 And add inside the file the exact following lines:
 ```
