@@ -1,10 +1,10 @@
 # Installation Guide
 Because the GlobalProtect VPN service offered by our university laks of support for linux distros, we find a workaround for connecting to the cluster without configuring a windows virtual machine.
 
-Our guide solves this problem by using an older version (v1.4.9) of [GlobalProtect-openconnect](https://github.com/yuezk/GlobalProtect-openconnect/) which does not require a paid licence to be used. 
+Our guide solves this problem by using an older version (v1.4.9) of [GlobalProtect-openconnect](https://github.com/yuezk/GlobalProtect-openconnect/), which does not require a paid licence to be used. 
 
-## Ubuntu 25.04
-Because the official PPA of the packet provides only the last version from github, it is necessary to download and compile manually the older version of the application. 
+## Ubuntu 25.04 (or derivatives)
+Because the official PPA of the packet provides only the last version from Github, it is necessary to download and compile manually the older version of the application. 
 
 First download few requirements.
 ```
@@ -25,7 +25,7 @@ cd /opt/GlobalProtect-openconnect
 sudo bash /opt/GlobalProtect-openconnect/scripts/install-ubuntu.sh
 ```
 After the execution of the script the application `gpclient` and the service `gpservice` should be automatically enabled. 
-To connect to the ssh first edit the configuration file located in `/etc/gpservice/gp.conf`
+To connect to the VPN first edit the configuration file located in `/etc/gpservice/gp.conf`
 ```
 $ sudo nano /etc/gpservice/gp.conf
 ```
