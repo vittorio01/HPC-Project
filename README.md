@@ -9,18 +9,18 @@ This repository contains two folders:
 ### How to write and compile an exercise
 The `exercises` folder contains:
 - `makefile`, a n automation script used for automatically compiling programs and creating the `run.sh` script.
-- More `*exercise*` folders with the source code of the exercises (the makefile compiles automatically the `main.c` file).
+- More `*exercise*` folders with the source code of the exercises (the makefile compiles automatically the `main.cpp` file).
 
-To add new source code to compile first create a dedicated folder in `exercises` and his respective `main.c` file. 
+To add new source code to compile first create a dedicated folder in `exercises` and his respective `main.cpp` file. 
 The structure should be similar to that:
 - `project/`
 - `exercises/`
   - `hello world/`
-    - `main.c`
+    - `main.cpp`
   - `example1/`
     - `lib.h`
-    - `lib.c`
-    - `main.c`
+    - `lib.cpp`
+    - `main.cpp`
   - `makefile`
 
 To compile your program enter in the `exercise` filder and run the makefile specifying the name of the folder that you have created.
@@ -34,7 +34,7 @@ The makefile will automatically compile the source file and the PBS script `run.
   - `out/`
     - `hello_world`
   - `hello world/`
-    - `main.c`
+    - `main.cpp`
   - `makefile`
 
 Then, to run the program:
@@ -47,6 +47,7 @@ When compiling the programs, the makefile accepts other optional variables:
 - *PROCESSES*, number of processes per chunk.
 - *RAM*, ram to allocate for the execution of the program.
 - *RUN*, the name of the generated PBS script.
+- *PLACE*, the placing technique for the processes.
 For example:
 ```
 make PRG=hello_world CHUNKS=10 PROCESSES=32 RAM=10gb
