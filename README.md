@@ -3,7 +3,7 @@ This repository will be used for the source code of our High Performance Computi
 
 ## Environment setup
 This repository contains two folders:
-- `project` contains the source code for th efinal project.
+- `project` contains the source code for the final project.
 - `exercises` contains more subfolders for some tests and exercises.
 
 ### How to write and compile an exercise
