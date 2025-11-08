@@ -7,7 +7,7 @@ PROCESSES = 4
 RAM=2gb
 PLACE=pack
 
-compile: $(PRG)/main.c	
+compile: libs-compile $(PRG)/main.c	
 	@echo "--- Generating PBS script ---"
 	rm -f $(RUN)
 	echo '#!/bin/bash' >> $(RUN)
@@ -35,3 +35,5 @@ run: compile
 clean: 
 	@echo "--- Cleaning up build files ---"
 	rm -rf $(PRG)/out/ $(PRG)/log $(RUN)
+
+include libraries/libs.mk
