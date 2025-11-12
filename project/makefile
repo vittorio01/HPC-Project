@@ -24,7 +24,7 @@ compile: libs-compile $(PRG)/main.c
 	mkdir -p  $(PRG)/out/ $(PRG)/log/
 	@echo "--- Compiling MPI program ---"
 	# module load mpich-3.2
-	$(CMP) -g -Wall -o $(PRG)/out/$(PRG) $(PRG)/main.c -lm
+	$(CMP) -std=c11 -g -Wall -o $(PRG)/out/$(PRG) $(PRG)/main.c -lm -I $(LIBS) $(LIBS)/*.o
 	@echo "--- Build complete ---"
 
 run: compile
@@ -32,7 +32,7 @@ run: compile
 	qsub $(RUN)
 	@echo "--- Job submitted ---"
 	
-clean: 
+clean: libs-clean 
 	@echo "--- Cleaning up build files ---"
 	rm -rf $(PRG)/out/ $(PRG)/log $(RUN)
 
