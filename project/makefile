@@ -3,7 +3,7 @@ PRG = hello_world
 RUN = $(PRG)/run.sh
 
 CHUNKS = 1
-PROCESSES = 4
+PROCESSES = 1
 RAM=2gb
 PLACE=pack
 
@@ -29,6 +29,7 @@ compile: libs-compile $(PRG)/main.c
 
 run: compile
 	@echo "--- Submitting job to cluster ---"
+	rm $(PRG)/log/*
 	qsub $(RUN)
 	@echo "--- Job submitted ---"
 	
