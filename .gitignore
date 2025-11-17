@@ -1,0 +1,20 @@
+# Build artifacts
+*.o
+*.out
+*.err
+
+# Compiled executables
+*/out/
+*/log/
+
+# PBS scripts
+run.sh
+
+# Library outputs
+lib/*.o
+lib/*.a
+lib/*.so
+
+# Temporary files
+*.tmp
+*~

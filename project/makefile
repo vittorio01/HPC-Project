@@ -7,7 +7,19 @@ PROCESSES = 1
 RAM=2gb
 PLACE=pack
 
-compile: libs-compile $(PRG)/main.c	
+# Library paths
+LIB_DIR = ../lib
+LIB_INCLUDE = $(LIB_DIR)/data/include
+LIB_OBJECTS = $(LIB_DIR)/data/data.o
+
+.PHONY: compile run clean libs
+
+libs:
+	@echo "--- Building libraries ---"
+	$(MAKE) -C $(LIB_DIR)
+	@echo "--- Libraries built ---"
+
+compile: libs $(PRG)/main.c	
 	@echo "--- Generating PBS script ---"
 	rm -f $(RUN)
 	echo '#!/bin/bash' >> $(RUN)
@@ -24,17 +36,17 @@ compile: libs-compile $(PRG)/main.c
 	mkdir -p  $(PRG)/out/ $(PRG)/log/
 	@echo "--- Compiling MPI program ---"
 	# module load mpich-3.2
-	$(CMP) -std=c11 -g -Wall -o $(PRG)/out/$(PRG) $(PRG)/main.c -lm -I $(LIBS) $(LIBS)/*.o
+	$(CMP) -std=c11 -g -Wall -o $(PRG)/out/$(PRG) $(PRG)/main.c -lm -I $(LIB_INCLUDE) $(LIB_OBJECTS)
 	@echo "--- Build complete ---"
 
 run: compile
 	@echo "--- Submitting job to cluster ---"
-	rm $(PRG)/log/*
+	rm -f $(PRG)/log/*
 	qsub $(RUN)
 	@echo "--- Job submitted ---"
 	
-clean: libs-clean 
+clean:
 	@echo "--- Cleaning up build files ---"
 	rm -rf $(PRG)/out/ $(PRG)/log $(RUN)
-
-include libraries/libs.mk
+	@echo "--- Cleaning libraries ---"
+	$(MAKE) -C $(LIB_DIR) clean
