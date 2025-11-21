@@ -29,7 +29,6 @@ compile: libs-compile $(PRG)/main.c
 
 run: compile
 	@echo "--- Submitting job to cluster ---"
-	rm $(PRG)/log/*
 	qsub $(RUN)
 	@echo "--- Job submitted ---"
 	
