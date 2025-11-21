@@ -1,7 +1,11 @@
 #include "bat.h"
 
-void batInit(Vector* initV, Vector* initX, float initFreq, float initA, float initR) {
-    
+void batInit(Bat* bat, Vector* initX, Vector* initV, float initF, float initA, float initR) {
+    bat->x = initX;
+    bat->v = initV;
+    bat->freq = initF;
+    bat->a = initA;
+    bat->r = initR;
 }
 
 void batEcho();

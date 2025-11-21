@@ -9,25 +9,27 @@
 #include "data.h"
 
 typedef struct Bat{
-    Vector* v;          //CurrentVelocity vector
     Vector* x;          //Current Position vector
-    float freq;         //current frequency
-    float A;            //Current loudnes
-    float r;            //Current range
-    unsigned int step;  //Current algorithm step
+    Vector* v;          //Current Velocity vector
+    float freq;         //current Frequency
+    float a;            //Current Loudness
+    float r;            //Current Pulse Rate
+    // unsigned int step;  //Current algorithm step
 } Bat;
 
-Bat *batInstance=NULL;
 
 /*
  * batInit() initialize the batInstance structure. Requires:
+ * bat -> pointer to Bat Structure
  * initV -> vector pointer of the initial velocity
  * initX -> vector pointer of the initial position
  * initFreq -> initial frequency Fmin
  * initA -> initial loudness A0
  * initR -> initial range
 */
-void batInit(Vector* initV, Vector* initX, float initFreq, float initA, float initR);
+void batInit(Bat* bat, Vector* initX, Vector* initV, float initFreq, float initA, float initR);
+
+/* the bat prints some useful info*/
 void batEcho();
 
 /* batDestroy() destroy the bat structure pointed by batInstance()*/
