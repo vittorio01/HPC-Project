@@ -8,16 +8,16 @@
 #include <stdlib.h>
 #include "data.h"
 
-struct Bat {
+typedef struct Bat{
     Vector* v;          //CurrentVelocity vector
     Vector* x;          //Current Position vector
     float freq;         //current frequency
     float A;            //Current loudnes
     float r;            //Current range
     unsigned int step;  //Current algorithm step
-}
+} Bat;
 
-BAT* batInstance=NULL;
+Bat *batInstance=NULL;
 
 /*
  * batInit() initialize the batInstance structure. Requires:

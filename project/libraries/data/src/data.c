@@ -33,7 +33,7 @@ void destroyVector(Vector** vector) {
 }
 
 
-void initMatrix(Matrix** matrix,unsigned int dx, unsigned int dy) {
+void initMatrix(Matrix** matrix, unsigned int dx, unsigned int dy) {
     //destroy an eventual allocated matrix on the given pointer
     destroyMatrix(matrix); 
 
@@ -42,7 +42,7 @@ void initMatrix(Matrix** matrix,unsigned int dx, unsigned int dy) {
     (*matrix)->dx=dx;
     (*matrix)->dy=dy;
     (*matrix)->data=malloc(dx*sizeof(float*));
-    for (unsigned int i=0;i<dy;i++) {
+    for (unsigned int i=0;i<dx;i++) {
         (*matrix)->data[i]=malloc(dy*sizeof(float));
     }
 }

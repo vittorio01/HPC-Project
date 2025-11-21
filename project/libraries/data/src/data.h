@@ -72,9 +72,8 @@ void printVector(Vector* vector, unsigned int start, unsigned int end);
 
 //initMatrix() generates a matrix structure and assigns it at the given matrix pointer. Requires:
 //dx -> number of rows of the matrix
-//dy -> dize of the rows of the matrix
-//matrix -> a NULL double pointer of a matrix structue
-//
+//dy -> number of columns of the matrix
+//matrix -> a NULL double pointer of a Matrix structure
 
 void initMatrix(Matrix** matrix, unsigned int dx, unsigned int dy);
 
