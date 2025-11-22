@@ -19,9 +19,10 @@
 #define V_BOUND 10  // Max Initial Random Velocity
 
 // -- Function Properties --
-#define X_BOUND 1000  // Max X coordinate
+// space is gonna be from [-X_BOUND, X_BOUND] x [-Y_BOUND, Y_BOUND]
+#define X_BOUND 1000  // Max X coordinate 
 #define Y_BOUND 1000  // Max Y coordinate
-#define DIM 2       // Problem Dimension
+#define DIM 2         // Problem Dimension
 
 int main(int argc, char** argv) {
    

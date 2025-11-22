@@ -7,19 +7,19 @@ void initVector(Vector** vector, unsigned int d) {
     //vector allocation
     (*vector)=malloc(sizeof(Vector));
     (*vector)->d=d;
-    (*vector)->data=malloc(sizeof(float)*d);
+    (*vector)->data=malloc(sizeof(double)*d);
 }
-void initVectorData(Vector* vector, float value) {
+void initVectorData(Vector* vector, double value) {
     if (vector==NULL) return;
     for (int i=0;i<vector->d;i++) {
         vector->data[i]=value;
     }
 }
 
-void initVectorRandom(Vector* vector, float min, float max) {
+void initVectorRandom(Vector* vector, double min, double max) {
     if (vector==NULL) return;
     for (int i=0;i<vector->d;i++) {
-        vector->data[i]=min + ((float) rand() / (float) RAND_MAX)*(max-min);
+        vector->data[i]=min + ((double) rand() / (double) RAND_MAX)*(max-min);
     }
 }
 
@@ -41,13 +41,13 @@ void initMatrix(Matrix** matrix, unsigned int dx, unsigned int dy) {
     (*matrix)=malloc(sizeof(Matrix));
     (*matrix)->dx=dx;
     (*matrix)->dy=dy;
-    (*matrix)->data=malloc(dx*sizeof(float*));
+    (*matrix)->data=malloc(dx*sizeof(double*));
     for (unsigned int i=0;i<dx;i++) {
-        (*matrix)->data[i]=malloc(dy*sizeof(float));
+        (*matrix)->data[i]=malloc(dy*sizeof(double));
     }
 }
 
-void initMatrixData(Matrix* matrix,float value) {
+void initMatrixData(Matrix* matrix,double value) {
     if (matrix==NULL) return;
 
     for (int i=0;i<matrix->dx;i++) {
@@ -57,13 +57,13 @@ void initMatrixData(Matrix* matrix,float value) {
     }
 }
 
-void initMatrixRandom(Matrix* matrix,float min,float max) {
+void initMatrixRandom(Matrix* matrix,double min,double max) {
     if (matrix==NULL) return;
 
     srand(time(NULL));
     for (int i=0;i<matrix->dx;i++) {
         for(int j=0;j<matrix->dy;j++) {
-            matrix->data[i][j]=min + ((float) rand() / (float) RAND_MAX)*(max-min);
+            matrix->data[i][j]=min + ((double) rand() / (double) RAND_MAX)*(max-min);
         }
     }
 }
