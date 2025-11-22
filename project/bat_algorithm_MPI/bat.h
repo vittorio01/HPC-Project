@@ -10,11 +10,11 @@
 #include "data.h"
 
 typedef struct Bat{
-    Vector* x;          //Current Position vector
-    Vector* v;          //Current Velocity vector
-    double freq;         //current Frequency
-    double a;            //Current Loudness
-    double r;            //Current Pulse Rate
+    Vector* pos;        // Current Position vector
+    Vector* v;          // Current Velocity vector
+    double freq;        // Current Frequency
+    double a;           // Current Loudness
+    double r;           // Current Pulse Rate
     // unsigned int step;  //Current algorithm step
 } Bat;
 
@@ -34,11 +34,10 @@ void batInit(Bat* bat, Vector* initX, Vector* initV, double initFreq, double ini
 * batRandom() spawns a bat at a random position in the function definition space
 * and with a random velocity.
 * bat -> pointer to bat struct
-* xBound -> max random X coordinate 
-* yBound -> max random Y coordinate 
+* posBound -> max random X,Y coordinates (a square)
 * vBound -> max random velocity
 */
-void batRandom(Bat* bat, double xBound, double yBound, double vBound);
+void batRandom(Bat* bat, double posBound, double vBound, double initF, double initA, double initR);
 
 /* the bat prints some useful info*/
 void batEcho();

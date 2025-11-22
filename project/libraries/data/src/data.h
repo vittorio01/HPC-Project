@@ -27,7 +27,7 @@ typedef struct Matrix {
     unsigned int dy;
 } Matrix;
 
-//initVector() generates a veector structure and assigns it at the given vector pointer. Requires:
+//initVector() generates a vector structure and assigns it at the given vector pointer. Requires:
 //d -> dimension of the vector to create 
 //vector -> a double NULL pointer of a vector structue
 //
@@ -36,13 +36,11 @@ void initVector(Vector** vector,unsigned int d);
 //initVectorData() initialized the given vector with a given number. Requires:
 //vector -> a double NULL pointer of a vector structue
 //value  -> initaliation value
-
 void initVectorData(Vector* vector,double value);
 
-//initVectorRandom() initialized the given vector with a given number. Requires:
-//vector -> a double NULL pointer of a vector structue
+//initVectorRandom() initialize the given vector with a given number. Requires:
+//vector -> an already initialized vector
 //min,max  -> range for the random values
-
 void initVectorRandom(Vector* vector, double min, double max);
 
 //copySubVector copies the content between two vectors with custom coordinates/sizes. Requires:
@@ -59,7 +57,6 @@ void copyVector(Vector* source, Vector* dest);
 
 //destroyVector() deallocates the given vector structure. Requires:
 //vector -> the double pointer of the vector structue to deallocate
-
 void destroyVector(Vector** vector);
 
 //printVector() prints the desired range of values of a vector. Requires:
@@ -67,29 +64,25 @@ void destroyVector(Vector** vector);
 //start,end -> start and end points 
 //
 //The output will be a subvector with [] braces
-
 void printVector(Vector* vector, unsigned int start, unsigned int end);
 
 //initMatrix() generates a matrix structure and assigns it at the given matrix pointer. Requires:
 //dx -> number of rows of the matrix
 //dy -> number of columns of the matrix
 //matrix -> a NULL double pointer of a Matrix structure
-
 void initMatrix(Matrix** matrix, unsigned int dx, unsigned int dy);
 
 //initMatrixData() initializes the matrix with a given number. Requires:
 //matrix -> the pointer of the matrix structure
 //value -> initialization value;
-
-void initMatrixData(Matrix* matrix, double value);
+void initMatrixData(Matrix* matrix,double value);
 
 //initMatrixRandom() initializes the matrix with random numbers. Requires:
 //matrix -> pointer to the matrix structure
 //min,max -> range for the random values
-
 void initMatrixRandom(Matrix* matrix, double min, double max);
 
-//copyMatrix() copies the content between two matrices with also different shapes/lengths. Requires:
+//copySubMatrix() copies the content between two matrices with also different shapes/lengths. Requires:
 //source -> the pointer of the source matrix
 //dest -> the pointer of the destination matrix
 //sourceRow -> Row coordinate of the first element from the source matrix
@@ -98,7 +91,7 @@ void initMatrixRandom(Matrix* matrix, double min, double max);
 //destCol -> Col coordinate for the first element to replace in the destination matrix
 //rowN -> Number of rows to copy 
 //colN -> Number of elements per row to copy 
-void copySubMatrix(Matrix* source, Matrix* dest, unsigned int sourceRow, unsigned int destRow, unsigned int sourceCol, unsigned int destCol, unsigned int rowN, unsigned int colN);
+void copySubMatrix(Matrix* source, Matrix* dest, unsigned int sourceRow, unsigned int destRow, unsigned int sourceCol, unsigned int destCol,unsigned int rowN, unsigned int colN);
 
 //copyMatrix() copy the content from source matrix to destination matrix. Requires:
 //source, dest -> pointers of matrix structures
@@ -110,18 +103,17 @@ void copyMatrix(Matrix* source, Matrix* dest);
 //colStart,colEnd -> range of the values to print in a single row
 //
 //The output will be a submatrix with {} braces for delimiting the set of rows and [] for the values in a single row.
-void printMatrix(Matrix* matrix, unsigned int rowStart, unsigned int rowEnd, unsigned int columnStart, unsigned int columnEnd);
+void printMatrix(Matrix* matrix,unsigned int rowStart,unsigned int rowEnd, unsigned int columnStart, unsigned int columnEnd);
 
 //destroyMatrix() deallocates a matrix structure. Requires:
 //matrix -> the double pointer of the matrix structure to deallocate.
-
 void destroyMatrix(Matrix** matrix);
 
 //copyToSubVector() copies the content from a matrix line to a vector with custom coordinates/length. Requires:
 //source, dest -> pointers to the source matrix and destination vector
 //sourceCol, sourceRow -> position of the first element to copy
 //n -> numer of elements to copy (in the same line specified with sourceRow)
-void copyToSubVector(Matrix* source, Vector* dest, unsigned int sourceRow, unsigned int sourceCol, unsigned int destPos, unsigned int n);
+void copyToSubVector(Matrix* source, Vector* dest, unsigned int sourceRow, unsigned int sourceCol, unsigned int destPos ,unsigned int n);
 
 //copyToVector() extracts a line from the source matrix to the destination vector. Requires:
 //source, dest -> pointers to the source matrix and destination vector

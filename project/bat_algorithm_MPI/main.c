@@ -19,19 +19,21 @@
 #define V_BOUND 10  // Max Initial Random Velocity
 
 // -- Function Properties --
-// space is gonna be from [-X_BOUND, X_BOUND] x [-Y_BOUND, Y_BOUND]
-#define X_BOUND 1000  // Max X coordinate 
-#define Y_BOUND 1000  // Max Y coordinate
+// space is gonna be from [-POS_BOUND, POS_BOUND] x [-POS_BOUND, POS_BOUND], so a square
+#define POS_BOUND 1000  // Max X, Y coordinates
 #define DIM 2         // Problem Dimension
 
 int main(int argc, char** argv) {
    
     // Required data structures
     Bat ** bat_array = malloc(N_BATS * sizeof(Bat));
+    double * fitness = malloc(N_BATS * sizeof(double));
+
     // Create N Bats instances, each with random initial position and velocity
     int i;
     for (i = 0; i < N_BATS; i++) {
-        batRandom(bat_array[i], X_BOUND, Y_BOUND, V_BOUND); // spawn bats with random position and velocity
+        bat_array[i] = malloc(sizeof(Bat));
+        batRandom(bat_array[i], POS_BOUND, V_BOUND, 0, A_0, R_0);
     } 
 
     // Set system properties like min frequency, max frequency, initial loudness, and pulse emission rate
