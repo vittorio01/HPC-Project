@@ -6,14 +6,15 @@
 #define __BAT_H__
 
 #include <stdlib.h>
+#include <time.h>
 #include "data.h"
 
 typedef struct Bat{
     Vector* x;          //Current Position vector
     Vector* v;          //Current Velocity vector
-    float freq;         //current Frequency
-    float a;            //Current Loudness
-    float r;            //Current Pulse Rate
+    double freq;         //current Frequency
+    double a;            //Current Loudness
+    double r;            //Current Pulse Rate
     // unsigned int step;  //Current algorithm step
 } Bat;
 
@@ -27,7 +28,17 @@ typedef struct Bat{
  * initA -> initial loudness A0
  * initR -> initial range
 */
-void batInit(Bat* bat, Vector* initX, Vector* initV, float initFreq, float initA, float initR);
+void batInit(Bat* bat, Vector* initX, Vector* initV, double initFreq, double initA, double initR);
+
+/*
+* batRandom() spawns a bat at a random position in the function definition space
+* and with a random velocity.
+* bat -> pointer to bat struct
+* xBound -> max random X coordinate 
+* yBound -> max random Y coordinate 
+* vBound -> max random velocity
+*/
+void batRandom(Bat* bat, double xBound, double yBound, double vBound);
 
 /* the bat prints some useful info*/
 void batEcho();
@@ -36,3 +47,4 @@ void batEcho();
 void batDestroy();
 
 #endif 
+

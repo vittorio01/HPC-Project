@@ -1,23 +1,38 @@
+/* Parallel MPI Version of the BAT Algorithm v1.0 */
+// This current version only minimizes the function
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "data.h"
 #include "bat.h"
 
+// -- Bat Properties --
 #define N_BATS 20 
 #define MAX_IT 10   // Max Optimization Iterations
-#define DIM 2       // Problem Dimension
 #define F_MIN 0
 #define F_MAX 100
 #define A_0 1.0     // Initial Loudness
 #define R_0 0.0     // Initial Pulse Rate
 #define ALPHA 0.9   // Loudness Cooling Factor
 #define GAMMA 0.9   // Pulse Rate Warming Factor
+#define V_BOUND 10  // Max Initial Random Velocity
+
+// -- Function Properties --
+#define X_BOUND 1000  // Max X coordinate
+#define Y_BOUND 1000  // Max Y coordinate
+#define DIM 2       // Problem Dimension
 
 int main(int argc, char** argv) {
-    
+   
+    // Required data structures
+    Bat ** bat_array = malloc(N_BATS * sizeof(Bat));
     // Create N Bats instances, each with random initial position and velocity
-    
+    int i;
+    for (i = 0; i < N_BATS; i++) {
+        batRandom(bat_array[i], X_BOUND, Y_BOUND, V_BOUND); // spawn bats with random position and velocity
+    } 
+
     // Set system properties like min frequency, max frequency, initial loudness, and pulse emission rate
 
     // Evaluate initial global fitness, position with first best fitness is recorded
@@ -38,4 +53,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-y
