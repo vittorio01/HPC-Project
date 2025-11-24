@@ -11,7 +11,7 @@ void batInit(Bat* bat, Vector* initPos, Vector* initV, double initF, double init
 void batRandom(Bat* bat, double posBound, double vBound, double initF, double initA, double initR) {
     // Generate a random position and velocity
     Vector * pos = malloc(sizeof(Vector));
-    initVectorRandom(&pos, -posBound, posBound);
+    initVectorRandom(pos, -posBound, posBound);
     Vector * v = malloc(sizeof(Vector));
 
     // Initialize bat
@@ -21,5 +21,3 @@ void batRandom(Bat* bat, double posBound, double vBound, double initF, double in
 void batEcho();
 
 void batDestroy();
-
-

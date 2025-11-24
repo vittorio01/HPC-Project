@@ -10,12 +10,14 @@
 
 // -- Bat Properties --
 #define N_BATS 20
-#define MAX_IT 10   // Max Optimization Iterations
+#define N_ITER 10   // Max Optimization Iterations
 #define F_MIN 0
 #define F_MAX 100
 #define A_0 1.0     // Initial Loudness
 #define R_0 0.0     // Initial Pulse Rate
 #define ALPHA 0.9   // Loudness Cooling Factor
+#define BETA_MIN 0
+#define BETA_MAX 1
 #define GAMMA 0.9   // Pulse Rate Warming Factor
 #define V_BOUND 10  // Max Initial Random Velocity
 
@@ -28,28 +30,57 @@ int main(int argc, char** argv) {
 
     // Required data structures
     Bat ** bat_array = malloc(N_BATS * sizeof(Bat));
-    double * fitness = malloc(N_BATS * sizeof(double));
+    Vector * fitness = NULL;
+    initVector(&fitness_vec, N_BATS);
+
     int best_index = 0; // index of bat with best fitness
     double best_fitness; // value of fitness of best bat
 
     // Create N Bats instances, each with random initial position and velocity
-    int i;
-    for (i = 0; i < N_BATS; i++) {
+    for (int i = 0; i < N_BATS; i++) {
         bat_array[i] = malloc(sizeof(Bat));
         batRandom(bat_array[i], POS_BOUND, V_BOUND, 0, A_0, R_0);
+
         // evaluate initial fitness
-        fitness[i] = evaluateFitness2D(bat_array[i]->pos);
+        fitness->data[i] = evaluateFitness2D(bat_array[i]->pos);
     }
 
-    // Find initial global best
-
-
-    // Set system properties like min frequency, max frequency, initial loudness, and pulse emission rate
-
     // Evaluate initial global fitness, position with first best fitness is recorded
+    best_index = minOfVec(fitness);
+    best_fitness = fitness->data[best_index];
 
-    // Perform Tmax iteration of the optimization loop
+    // Perform N_ITER iteration of the optimization loop
+    for (int i = 0; i < N_ITER; i++) {
+        // Calculate average loudness
+        double sum_A = 0;
+        double avg_A = 0;
+        for (int j = 0; j < N_BATS; j++) {
+            sum_A = sum_A + bat_array[j]->a;
+        }
+        avg_A = sum_A / N_BATS;
 
+        // For every bat do a GLOBAL MOVE
+        for (int j = 0; j < N_BATS; j++) {
+            // Choose beta for each bat
+            double beta = random_uniform(BETA_MIN, BETA_MAX);
+            // frequency update
+            bat_array[j]->freq = F_MIN + (F_MAX - F_MIN) * beta;
+            // velocity update (for each component)
+            // ex. V = V{j} + (X{best_bat} - X{j}) * f{j}
+            // x - component
+            bat_array[j]->v[0] =    bat_array[j]->v[0] +
+                                    (bat_array[best_index]->pos[0] - bat_array[j]->pos[0]) *
+                                    bat_array[j]->freq;
+            // y - component
+            bat_array[j]->v[1] =    bat_array[j]->v[1] +
+                                    (bat_array[best_index]->pos[1] - bat_array[j]->pos[1]) *
+                                    bat_array[j]->freq;
+
+            // Position update
+
+        }
+
+    }
 
     // Phase A: Exploration
     // 1 - Each bat updates frequency, velocity and position

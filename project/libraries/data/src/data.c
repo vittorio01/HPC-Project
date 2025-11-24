@@ -4,11 +4,27 @@ void initVector(Vector** vector, unsigned int d) {
     //destroy an eventual vector allocated in the given pointer
     destroyVector(vector);
 
-    //vector allocation
+    // vector allocation
     (*vector)=malloc(sizeof(Vector));
+    // check if malloc failed
+    if (*vector == NULL) {
+        // allocation failed; leave *vector = NULL so caller can detect it
+        return;
+    }
+
     (*vector)->d=d;
+
+    // data allocation
     (*vector)->data=malloc(sizeof(double)*d);
+    // check if malloc failed
+    if ((*vector)->data == NULL) {
+        // second allocation failed
+        free(*vector);
+        *vector = NULL;
+        return;
+    }
 }
+
 void initVectorData(Vector* vector, double value) {
     if (vector==NULL) return;
     for (int i=0;i<vector->d;i++) {

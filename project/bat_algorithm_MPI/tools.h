@@ -24,6 +24,10 @@ double rosenbrockStandard(double x, double y);
  */
 double evaluateFitness2D(Vector *pos);
 
+/**
+ * Create a random double with uniform distribution between min and max
+ */
+double random_uniform(double min, double max);
 
 
 #endif
