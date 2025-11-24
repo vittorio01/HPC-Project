@@ -35,7 +35,7 @@ void destroyVector(Vector** vector) {
 
 void initMatrix(Matrix** matrix, unsigned int dx, unsigned int dy) {
     //destroy an eventual allocated matrix on the given pointer
-    destroyMatrix(matrix); 
+    destroyMatrix(matrix);
 
     //matrix allocation
     (*matrix)=malloc(sizeof(Matrix));
@@ -71,7 +71,7 @@ void initMatrixRandom(Matrix* matrix,double min,double max) {
 void destroyMatrix(Matrix** matrix) {
     if ((*matrix)==NULL) return;
 
-    //if the matrix pointer is not null, destroy it 
+    //if the matrix pointer is not null, destroy it
     if ((*matrix)->data!=NULL) {
         for (unsigned int i=0;i<(*matrix)->dx;i++) {
             if((*matrix)->data[i]!=NULL) free((*matrix)->data[i]);
@@ -187,3 +187,42 @@ void copyToVector(Matrix* source, Vector* dest,unsigned int row) {
     copyToSubVector(source,dest,row,0,0,lim);
 }
 
+int minOfVec(Vector *vec) {
+    // handle invalid or empty vectors
+    if(vec == NULL || vec->data == NULL || vec->d == 0) {
+        return -1;
+    }
+
+    unsigned int min_index = 0;
+    double min_value = vec->data[0];
+
+    for (unsigned int i = 1; i < vec->d; i++) {
+        double v = vec->data[i];
+        if (v < min_value) {
+            min_value = v;
+            min_index = i;
+        }
+    }
+
+    return (int) min_index;
+}
+
+int maxOfVec(Vector *vec) {
+    // handle invalid or empty vectors
+    if (vec == NULL || vec->data == NULL || vec->d == 0) {
+        return -1;
+    }
+
+    unsigned int max_index = 0;
+    double max_value = vec->data[0];
+
+    for (unsigned int i = 1; i < vec->d; i++) {
+        double v = vec->data[i];
+        if (v > max_value) {
+            max_value = v;
+            max_index = i;
+        }
+    }
+
+    return (int) max_index;
+}

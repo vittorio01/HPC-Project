@@ -1,5 +1,5 @@
 /*
-*   Useful functions 
+*   Useful functions
 */
 #ifndef __TOOLS_H__
 #define __TOOLS_H__
@@ -22,7 +22,7 @@ double rosenbrockStandard(double x, double y);
 /**
  * Fitness wrapper
  */
-double evaluateFitness(Vector *pos);
+double evaluateFitness2D(Vector *pos);
 
 
 

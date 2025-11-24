@@ -28,7 +28,7 @@ typedef struct Matrix {
 } Matrix;
 
 //initVector() generates a vector structure and assigns it at the given vector pointer. Requires:
-//d -> dimension of the vector to create 
+//d -> dimension of the vector to create
 //vector -> a double NULL pointer of a vector structue
 //
 void initVector(Vector** vector,unsigned int d);
@@ -48,8 +48,8 @@ void initVectorRandom(Vector* vector, double min, double max);
 //dest -> the pointer of the destination vector
 //sourcePoint -> first element to copy from the source vector
 //destPoint -> position in the destination vector
-//n -> number of elements to copy 
-void copySubVector(Vector* source, Vector* dest,unsigned int sourcePoint, unsigned int destPoint, unsigned int n); 
+//n -> number of elements to copy
+void copySubVector(Vector* source, Vector* dest,unsigned int sourcePoint, unsigned int destPoint, unsigned int n);
 
 //copyVector() copy the source vector in the dest vector. Requires:
 //dest, source pointers of the two vectors
@@ -61,7 +61,7 @@ void destroyVector(Vector** vector);
 
 //printVector() prints the desired range of values of a vector. Requires:
 //vector -> the vector structure to print
-//start,end -> start and end points 
+//start,end -> start and end points
 //
 //The output will be a subvector with [] braces
 void printVector(Vector* vector, unsigned int start, unsigned int end);
@@ -89,8 +89,8 @@ void initMatrixRandom(Matrix* matrix, double min, double max);
 //destRow -> Row coordinate for the first element to replace in the destination matrix
 //sourceCol -> Col coordinate of the first element from the source matrix
 //destCol -> Col coordinate for the first element to replace in the destination matrix
-//rowN -> Number of rows to copy 
-//colN -> Number of elements per row to copy 
+//rowN -> Number of rows to copy
+//colN -> Number of elements per row to copy
 void copySubMatrix(Matrix* source, Matrix* dest, unsigned int sourceRow, unsigned int destRow, unsigned int sourceCol, unsigned int destCol,unsigned int rowN, unsigned int colN);
 
 //copyMatrix() copy the content from source matrix to destination matrix. Requires:
@@ -118,12 +118,12 @@ void copyToSubVector(Matrix* source, Vector* dest, unsigned int sourceRow, unsig
 //copyToVector() extracts a line from the source matrix to the destination vector. Requires:
 //source, dest -> pointers to the source matrix and destination vector
 //row -> source row
-void copyToVector(Matrix* source, Vector* dest, unsigned int row); 
+void copyToVector(Matrix* source, Vector* dest, unsigned int row);
 
 //copyToSubMatrix() copies the content from a vectorto a matrix line with custom coordinated/length. Requires:
 //source, dest -> pointers ot the destinatio matrix and source vector
 //destRow, destCol -> coordinates in the destination matrix
-//sourcePoint -> position of the first element to copy 
+//sourcePoint -> position of the first element to copy
 //n -> number of elements to copy
 void copyToSubMatrix(Vector* source, Matrix* dest, unsigned int sourcePos, unsigned int destRow, unsigned int destCol, unsigned int n);
 
@@ -138,4 +138,12 @@ unsigned int min(unsigned int a, unsigned int b);
 //max() returns the maimum value between a and b;
 unsigned int max(unsigned int a, unsigned int b);
 
-#endif 
+// minOfVec() returns the index of the smallest item of the vector
+// vec -> pointer to Vec object
+int minOfVec(Vector *vec);
+
+// maxOfVec() returns the index of the biggest item of the vector
+// vec -> pointer to Vec object
+int maxOfVec(Vector *vec);
+
+#endif

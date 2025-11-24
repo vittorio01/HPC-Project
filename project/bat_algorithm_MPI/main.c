@@ -6,9 +6,10 @@
 
 #include "data.h"
 #include "bat.h"
+#include "tools.h"
 
 // -- Bat Properties --
-#define N_BATS 20 
+#define N_BATS 20
 #define MAX_IT 10   // Max Optimization Iterations
 #define F_MIN 0
 #define F_MAX 100
@@ -24,17 +25,24 @@
 #define DIM 2         // Problem Dimension
 
 int main(int argc, char** argv) {
-   
+
     // Required data structures
     Bat ** bat_array = malloc(N_BATS * sizeof(Bat));
     double * fitness = malloc(N_BATS * sizeof(double));
+    int best_index = 0; // index of bat with best fitness
+    double best_fitness; // value of fitness of best bat
 
     // Create N Bats instances, each with random initial position and velocity
     int i;
     for (i = 0; i < N_BATS; i++) {
         bat_array[i] = malloc(sizeof(Bat));
         batRandom(bat_array[i], POS_BOUND, V_BOUND, 0, A_0, R_0);
-    } 
+        // evaluate initial fitness
+        fitness[i] = evaluateFitness2D(bat_array[i]->pos);
+    }
+
+    // Find initial global best
+
 
     // Set system properties like min frequency, max frequency, initial loudness, and pulse emission rate
 
@@ -43,7 +51,7 @@ int main(int argc, char** argv) {
     // Perform Tmax iteration of the optimization loop
 
 
-    // Phase A: Exploration 
+    // Phase A: Exploration
     // 1 - Each bat updates frequency, velocity and position
     // Phase B: Exploitation
     // 1 - a random number is generated, if rand > pulserate_i then the bat performs
