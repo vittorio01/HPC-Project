@@ -34,12 +34,12 @@ typedef struct Matrix {
 //
 void initVector(Vector** vector,unsigned int d);
 
-//initVectorData() initialized the given vector with a given number. Requires:
+//initVectorData() initialize all elements of the given vector with a given number. Requires:
 //vector -> a double NULL pointer of a vector structue
 //value  -> initaliation value
 void initVectorData(Vector* vector,double value);
 
-//initVectorRandom() initialize the given vector with a given number. Requires:
+//initVectorRandom() initialize all elements of the given vector with a given number. Requires:
 //vector -> an already initialized vector
 //min,max  -> range for the random values
 void initVectorRandom(Vector* vector, double min, double max);

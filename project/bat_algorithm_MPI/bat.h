@@ -1,4 +1,4 @@
-/* 
+/*
  * Implementation of bat localization for the MPI algorithm
 */
 
@@ -39,11 +39,17 @@ void batInit(Bat* bat, Vector* initX, Vector* initV, double initFreq, double ini
 */
 void batRandom(Bat* bat, double posBound, double vBound, double initF, double initA, double initR);
 
+/**
+ * baCheckPos checks if the current bat position is within bounds, if not it changes the bat position to the max bound
+ * bat -> pointer to Bat structure
+ * posBound -> value of the max allowed X, Y bounds (it's a square)
+ */
+void batCheckPos(Bat * bat, double posBound);
+
 /* the bat prints some useful info*/
 void batEcho();
 
 /* batDestroy() destroy the bat structure pointed by batInstance()*/
 void batDestroy();
 
-#endif 
-
+#endif
