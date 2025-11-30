@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <data.h>
+#include <tools.h>
+
 
 int main(int argc, char** argv) {
     printf("--- Vector function test phase ---\n");
@@ -115,5 +117,21 @@ int main(int argc, char** argv) {
     destroyMatrix(&matrix);
     destroyMatrix(&matrix2);
     printf("--- matrix-vector function tested \n");
+    printf("--- testing batAlgorithmParameters and batAlgorithmResults functions");
+    batAlgorithmParameters* parameters=NULL;
+    batAlgorithmResults* results=NULL;
+    initParameters(&parameters,3);
+    initResults(&results,3);
+    if (parameters==NULL || results==NULL) {
+        printf("Structures not initialized correctly\n");
+        return 0;
+    } 
+    printf("Structures initialized correctly. Printing...\n");
+    printParameters(parameters);
+    printResults(results);
+    printf("Destroying structures...");
+    //destroyResults(&results);
+    //destroyParameters(&parameters);
+    printf("--- function tested --- ");
     return 0;
 }

@@ -1,16 +1,17 @@
-SRC_FOLDER=src
-OUT_FOLDER=out
-SRC=data
+DATA_SRC_FOLDER:=src
+DATA_OUT_FOLDER:=out
+DATA_SRC:=data
 
-.PHONY: libs-compile libs-clean
+.PHONY: libs-compile-data libs-clean-data
 
-libs-compile: 
-	mkdir -p $(LIBS_SRCS)/$(SRC)/$(OUT_FOLDER)
+libs-compile-data: 
+	mkdir -p $(LIBS_SRCS)/$(DATA_SRC)/$(DATA_OUT_FOLDER)
 	
-	gcc -std=c11 -o $(LIBS_SRCS)/$(SRC)/$(OUT_FOLDER)/$(SRC).o -c $(LIBS_SRCS)/$(SRC)/$(SRC_FOLDER)/$(SRC).c
-	ln -s -f ../../$(LIBS_SRCS)/$(SRC)/$(OUT_FOLDER)/$(SRC).o $(LIBS)/$(SRC).o
-	ln -s -f ../../$(LIBS_SRCS)/$(SRC)/$(SRC_FOLDER)/$(SRC).h $(LIBS)/$(SRC).h
+	gcc -std=c11 -o $(LIBS_SRCS)/$(DATA_SRC)/$(DATA_OUT_FOLDER)/$(DATA_SRC).o -c $(LIBS_SRCS)/$(DATA_SRC)/$(DATA_SRC_FOLDER)/$(DATA_SRC).c -I $(LIBS) 
 
-libs-clean:
-	rm -rf $(OUT_FOLDER)
+	ln -s -f ../../$(LIBS_SRCS)/$(DATA_SRC)/$(DATA_OUT_FOLDER)/$(DATA_SRC).o $(LIBS)/$(DATA_SRC).o
+	ln -s -f ../../$(LIBS_SRCS)/$(DATA_SRC)/$(DATA_SRC_FOLDER)/$(DATA_SRC).h $(LIBS)/$(DATA_SRC).h
+
+libs-clean-data:
+	rm -rf $(DATA_OUT_FOLDER)
 	

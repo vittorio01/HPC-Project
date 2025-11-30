@@ -1,8 +1,6 @@
 #include "data.h"
 
 void initVector(Vector** vector, unsigned int d) {
-    //destroy an eventual vector allocated in the given pointer
-    destroyVector(vector);
 
     // vector allocation
     (*vector)=malloc(sizeof(Vector));
@@ -50,8 +48,6 @@ void destroyVector(Vector** vector) {
 
 
 void initMatrix(Matrix** matrix, unsigned int dx, unsigned int dy) {
-    //destroy an eventual allocated matrix on the given pointer
-    destroyMatrix(matrix);
 
     //matrix allocation
     (*matrix)=malloc(sizeof(Matrix));
