@@ -1,21 +1,20 @@
-Best fitness: 1.711861
-Round 1 execution time: 0.001911 sec
-Best fitness: 9.490028
-Round 2 execution time: 0.001822 sec
-Best fitness: 0.936817
-Round 3 execution time: 0.001826 sec
-Best fitness: 3.901506
-Round 4 execution time: 0.001810 sec
-Best fitness: 0.127805
-Round 5 execution time: 0.001631 sec
-Best fitness: 1.527209
-Round 6 execution time: 0.000789 sec
-Best fitness: 0.426925
-Round 7 execution time: 0.000790 sec
-Best fitness: 0.888864
-Round 8 execution time: 0.000783 sec
-Best fitness: 3.342967
-Round 9 execution time: 0.000788 sec
-Best fitness: 1.794274
-Round 10 execution time: 0.000798 sec
-Average execution time: 0.001295 sec
+Agent pid 87727
+Run  1: best fitness = 0.000057, time = 0.011978 sec
+Run  2: best fitness = 0.022573, time = 0.011863 sec
+Run  3: best fitness = 0.045627, time = 0.011705 sec
+Run  4: best fitness = 0.199261, time = 0.011646 sec
+Run  5: best fitness = 0.007909, time = 0.011520 sec
+Run  6: best fitness = 0.069979, time = 0.011484 sec
+Run  7: best fitness = 1.272256, time = 0.011433 sec
+Run  8: best fitness = 0.007431, time = 0.011625 sec
+Run  9: best fitness = 0.045700, time = 0.011731 sec
+Run 10: best fitness = 0.051565, time = 0.011719 sec
+Average execution time over 10 runs: 0.011670 sec
+
+=== Final best solution over all runs ===
+Best fitness found: 0.00005715
+Best position: [-0.00533989, 0.00535080]
+True optimum (Sphere): f(x*) = 0 at (0,...,0)
+Fitness error: 5.71454730e-05
+Distance of best point to optimum: 7.55946245e-03
+=> Solution is CLOSE to the true optimum (within tolerance 1.0e-03).

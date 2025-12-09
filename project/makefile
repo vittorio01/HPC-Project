@@ -25,7 +25,7 @@ compile: libs-compile $(PRG)/main.c
 	mkdir -p  $(PRG)/out/ $(PRG)/log/
 	@echo "--- Compiling MPI program ---"
 	# module load mpich-3.2
-	$(CMP) -std=c11 -g -Wall -o $(PRG)/out/$(PRG) $(PRG)/main.c -lm -I $(LIBS) $(LIBS)/*.o
+	$(CMP) -std=c11 -g -Wall -fopenmp -o $(PRG)/out/$(PRG) $(PRG)/main.c -lm -I $(LIBS) $(LIBS)/*.o
 	@echo "--- Build complete ---"
 
 run: compile

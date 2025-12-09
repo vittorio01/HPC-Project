@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
     batAlgorithmParameters* parameters=NULL;
     batAlgorithmResults* results=NULL;
     initParameters(&parameters,3);
-    initResults(&results,3);
+    initResults(&results,3); 
     if (parameters==NULL || results==NULL) {
         printf("Structures not initialized correctly\n");
         return 0;
