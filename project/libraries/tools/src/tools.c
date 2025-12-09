@@ -3,7 +3,6 @@
 void initParameters(batAlgorithmParameters** parameters, unsigned int vectorDim) {
     (*parameters)=malloc(sizeof(batAlgorithmParameters));
     if ((*parameters) == NULL) return;
-    printf("\nMarker"); 
 
     initVector(&((*parameters)->initPos),vectorDim);
     initVector(&((*parameters)->initVel),vectorDim);
@@ -55,7 +54,7 @@ void initResults(batAlgorithmResults** results, unsigned int vectorDim) {
     initVector(&((*results)->bestPos),vectorDim);
 }
 void destroyResults(batAlgorithmResults** results) {
-    if ((*results)=NULL) return;
+    if ((*results)==NULL) return;
     destroyVector(&((*results)->bestPos));
     free((*results));
     (*results)=NULL;
