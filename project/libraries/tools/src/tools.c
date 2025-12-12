@@ -5,10 +5,8 @@ void initParameters(batAlgorithmParameters** parameters, unsigned int vectorDim)
     if ((*parameters) == NULL) return;
 
     initVector(&((*parameters)->initPos),vectorDim);
-    initVector(&((*parameters)->initVel),vectorDim);
-    if ((*parameters)->initPos==NULL || (*parameters)->initVel==NULL) return;
+    if ((*parameters)->initPos==NULL) return;
     initVectorData((*parameters)->initPos,DEFAULT_POS);
-    initVectorData((*parameters)->initVel,DEFAULT_VEL);
     (*parameters)->fMin=DEFAULT_FMIN;
     (*parameters)->fMax=DEFAULT_FMAX;
     (*parameters)->initPulse=DEFAULT_PULSE;
@@ -17,14 +15,12 @@ void initParameters(batAlgorithmParameters** parameters, unsigned int vectorDim)
     (*parameters)->alpha=DEFAULT_ALPHA;
     (*parameters)->vectorDim=vectorDim;
     (*parameters)->initPosRadius=DEFAULT_POS_RADIUS;
-    (*parameters)->initVelRadius=DEFAULT_VEL_RADIUS;
     (*parameters)->bats=DEFAULT_BATS_NUMBER;
     (*parameters)->iterations=DEFAULT_ITERATIONS;
 }
 void destroyParameters(batAlgorithmParameters** parameters) {
     if ((*parameters)==NULL) return;
     destroyVector(&((*parameters)->initPos));
-    destroyVector(&((*parameters)->initVel));
     free((*parameters));
     (*parameters)=NULL;
 }
@@ -36,9 +32,7 @@ void printParameters(batAlgorithmParameters* parameters) {
     printf("Problem dimension: %d variables\n",parameters->vectorDim);
     printf("Initial position ");
     printVector(parameters->initPos,0,parameters->vectorDim);
-    printf("Initial velocity ");
-    printVector(parameters->initVel,0,parameters->vectorDim);
-    printf("Generation radius for positions and velocities: %f, %f\n",parameters->initPosRadius,parameters->initVelRadius);
+    printf("Generation radius: %f\n",parameters->initPosRadius);
     printf("Frequency limits: [%f,%f]\n",parameters->fMin,parameters->fMax);
     printf("Initial loudness: %f\n",parameters->initLoudness);
     printf("Initial pulse: %f\n",parameters->initPulse);

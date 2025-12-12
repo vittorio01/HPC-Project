@@ -5,7 +5,6 @@
 
 //default values for initial parameters used by the bat algorithms
 #define DEFAULT_POS         0      
-#define DEFAULT_VEL         0
 #define DEFAULT_FMIN        0
 #define DEFAULT_FMAX        100
 #define DEFAULT_PULSE       0.2
@@ -15,7 +14,6 @@
 
 //default values for bat spawning and iterations 
 #define DEFAULT_POS_RADIUS   30
-#define DEFAULT_VEL_RADIUS   30
 #define DEFAULT_BATS_NUMBER  100
 #define DEFAULT_ITERATIONS   1000
 
@@ -24,9 +22,7 @@
 
 /*  batAlgorithmParamters is a structure containing the initial parameters and the launch settings for the bat algorithms:
  *  initPos         ->      Initial reference position for spawning bats (the algorithm will geenrate bats around this position)
- *  initVel         ->      Initial reference velocity for spawning bats (the algorithm will generate values around this velocity)
  *  initPosRadius   ->      Geenratio radius for spawning the bats
- *  initVelRadius   ->      Generation radius for assigning velocities to the bats
  *  [fMin,fMax]     ->      Boundaries for the geenration of freuencies used by the bats 
  *  initPulse       ->      Initial pulse of the bats
  *  initLoudness    ->      Initial loudness of the bats
@@ -37,7 +33,6 @@
 
 typedef struct batAlgorithmParameters {
     Vector* initPos;
-    Vector* initVel;
     double fMin;
     double fMax;
     double initPulse;
@@ -48,7 +43,6 @@ typedef struct batAlgorithmParameters {
 
     unsigned int vectorDim;
     double initPosRadius;
-    double initVelRadius;
     
     unsigned int bats;
     unsigned int iterations;
