@@ -29,8 +29,8 @@ typedef struct Matrix {
 
 //initVector() generates a vector structure and assigns it at the given vector pointer. Requires:
 // IMPORTANT: vector needs to be set to NULL before calling this function, otherwise undefined behaviour will occur
-//d -> dimension of the vector to create
 //vector -> a double NULL pointer of a vector structue
+//d -> dimension of the vector to create
 //
 void initVector(Vector** vector,unsigned int d);
 

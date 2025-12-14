@@ -1,8 +1,8 @@
 /*
 *   Useful functions
 */
-#ifndef __TOOLS_H__
-#define __TOOLS_H__
+#ifndef __TOOLS_1_H__
+#define __TOOLS_1_H__
 
 #include <math.h>
 #include "data.h"
