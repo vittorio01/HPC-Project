@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <mpi.h>
 
 #include "data.h"
 #include "bat.h"
@@ -13,8 +14,8 @@
 
 
 // -- Bat Properties --
-#define N_BATS 100
-#define N_ITER 1000   // Max Optimization Iterations
+#define N_BATS 1000000
+#define N_ITER 10  // Max Optimization Iterations
 #define F_MIN 0.0
 #define F_MAX 100.0
 #define A_0 1.0     // Initial Loudness
@@ -22,155 +23,196 @@
 #define ALPHA 0.9   // Loudness Cooling Factor
 #define BETA_MIN 0.0
 #define BETA_MAX 1.0
+#define EPS_MIN -1.0 // Epsilon minimum value
+#define EPS_MAX 1.0 // Epsilon max value
 #define GAMMA 0.9   // Pulse Rate Cooling Factor
 #define V_BOUND 5.0  // Max Initial Random Velocity
 
 // -- Function Properties --
 // space is gonna be from [-POS_BOUND, POS_BOUND] x [-POS_BOUND, POS_BOUND], so a square
-#define POS_BOUND 50  // Max X, Y coordinates
+#define POS_BOUND 100  // Max X, Y coordinates
 #define DIM 2         // Problem Dimension
 
 int main(int argc, char** argv) {
 
-    // Seed for random numbers
-    srand((unsigned int) time(NULL));
+    // MPI
+    int comm_sz; // Number of processes
+    int my_rank; // Process individual rank 
 
-    // Required data structures
-    Bat ** bat_array = malloc(N_BATS * sizeof(Bat *));
-    Vector * fitness = NULL;
-    initVector(&fitness, N_BATS);
+    MPI_Init(NULL, NULL);
+    MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
-    int best_index = 0; // index of bat with best fitness
-    double best_fitness; // fitness value of best bat
+    // Different random seed for every process
+    srand((unsigned int) time(NULL) + my_rank);
 
-    // Create N Bats instances, each with random initial position, velocity, loudness and pulse rate
-    for (int i = 0; i < N_BATS; i++) {
+    // Compute local bat count per process
+    int local_n_bats = N_BATS / comm_sz;
+    int remainder = N_BATS % comm_sz;
+
+    // Local data structures
+    Bat **bat_array = malloc(local_n_bats * sizeof(Bat *));
+    Vector *fitness = NULL;
+    initVector(&fitness, local_n_bats);
+
+    // Local best tracking
+    int local_best_index = 0;
+    double local_best_fitness;
+
+    // Global best tracking (replicated on all processes)
+    double global_best_fitness;
+    Vector *global_best_pos = NULL;
+    initVector(&global_best_pos, DIM);
+
+    // Initialize local bats
+    for (int i = 0; i < local_n_bats; i++) {
         // Spawn bats with random parameters
         bat_array[i] = malloc(sizeof(Bat));
         batRandom(bat_array[i], POS_BOUND, V_BOUND, 0);
-
         // evaluate initial fitness
         fitness->data[i] = evaluateFitness2D(bat_array[i]->pos);
+    } 
+
+    // find local best
+    local_best_index = minOfVec(fitness);
+    local_best_fitness = fitness->data[local_best_index];
+
+    // Structure to hold fitness and rank for MPI_MINLOC
+    struct {
+        double fitness;
+        int rank;
+    } local_min, global_min;
+
+    local_min.fitness = local_best_fitness;
+    local_min.rank = my_rank;
+
+    // Find global best *process* (not coordinates) across all processes
+    MPI_Allreduce(&local_min, &global_min, 1, MPI_DOUBLE_INT, MPI_MINLOC, MPI_COMM_WORLD);
+    global_best_fitness = global_min.fitness;
+
+    // Broadcast best position from the process that has it
+    if (my_rank == global_min.rank) {
+        copyVector(bat_array[local_best_index]->pos, global_best_pos);
     }
+    MPI_Bcast(global_best_pos->data, DIM, MPI_DOUBLE, global_min.rank, MPI_COMM_WORLD);
 
-    // Evaluate initial global fitness, position with first best fitness is recorded
-    best_index = minOfVec(fitness);
-    best_fitness = fitness->data[best_index];
-
-    // Perform N_ITER iteration of the optimization loop
-    for (int i = 0; i < N_ITER; i++) {
-        // Compute average loudness
-        double sum_A = 0;
-        double avg_A = 0;
-        for (int j = 0; j < N_BATS; j++) {
-            sum_A = sum_A + bat_array[j]->a;
+    // Main optimization loop
+    for (int iter = 0; iter < N_ITER; iter++) {
+        // Compute local average loudness
+        double local_sum_A = 0;
+        for (int i = 0; i < local_n_bats; i++) {
+            local_sum_A += bat_array[i]->a;
         }
-        avg_A = sum_A / N_BATS;
 
-        // Iterate through bats
-        for (int j = 0; j < N_BATS; j++) {
-            // DEBUG
-            printf("\nIteration %d, bat %d", i, j);
+        // Compute global average loudness
+        double global_sum_A = 0;
+        // this sums all the local loudnesses for every processes and store it in global_sum_A
+        MPI_Allreduce(&local_sum_A, &global_sum_A, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        double avg_A = global_sum_A / N_BATS;
 
-            // New candidate Bat position
+        // Update each local bat
+        for (int i = 0; i < local_n_bats; i++) {
+            // new candidate bat position
             Vector *cand = NULL;
             initVector(&cand, DIM);
             if (!cand) continue;
-            copyVector(bat_array[j]->pos, cand);
+            copyVector(bat_array[i]->pos, cand);
 
-            // -- GLOBAL SEARCH --
-            // Choose beta for each bat
+            // GLOBAL SEARCH 
             double beta = random_uniform(BETA_MIN, BETA_MAX);
+            bat_array[i]->freq = F_MIN + (F_MAX - F_MIN) * beta;
 
-            // frequency update
-            bat_array[j]->freq = F_MIN + (F_MAX - F_MIN) * beta;
+            // update velocity
+            double delta_x = bat_array[i]->pos->data[0] - global_best_pos->data[0];
+            double delta_y = bat_array[i]->pos->data[1] - global_best_pos->data[1];
+            bat_array[i]->v->data[0] += delta_x * bat_array[i]->freq;
+            bat_array[i]->v->data[1] += delta_y * bat_array[i]->freq;
 
-            // velocity update (for each component)
-            // ex. V = V{j} + (X{j}- X{best_bat}) * f{j}
-            double delta_x = bat_array[j]->pos->data[0] - bat_array[best_index]->pos->data[0];
-            double delta_y = bat_array[j]->pos->data[1] - bat_array[best_index]->pos->data[1];
-            bat_array[j]->v->data[0] += delta_x * bat_array[j]->freq;
-            bat_array[j]->v->data[1] += delta_y * bat_array[j]->freq;
+            // Update candidate position
+            cand->data[0] += bat_array[i]->v->data[0];
+            cand->data[1] += bat_array[i]->v->data[1];
 
-            // Updating candidate position (X_new = X + V)
-            cand->data[0] += bat_array[j]->v->data[0];
-            cand->data[1] += bat_array[j]->v->data[1];
-
-            // Clamp candidate position within bounds
+            // apply bound condition
             Bat temp_bat;
             temp_bat.pos = cand;
             batCheckPos(&temp_bat, POS_BOUND);
-            copyVector(temp_bat.pos, cand);
+            copyVector(temp_bat.pos, cand); 
 
-            // -- LOCAL SEARCH (RANDOM WALK) --
-            // - Generate a random number between 0 and 1, if that is greater than bat pulse rate, then perform local search
+            // LOCAL SEARCH (Random Walk)
+            // - Generate a random number between 0 and 1, if that is greater than bat pulse rate
+            // - then perform local search
             double rand_local_search = random_uniform(0.0, 1.0);
+            if (rand_local_search > bat_array[i]->r) {
+                double epsilon = random_uniform(EPS_MIN, EPS_MAX);
+                // you can use here either avg_A over all bats or bat[i]->A, 
+                // experiment with both!
+                cand->data[0] += epsilon * avg_A;
+                cand->data[1] += epsilon * avg_A;
 
-            // Local search is going to do a random local search for that bat
-            if (rand_local_search > bat_array[j]->r) {
-               double epsilon = random_uniform(-1.0 , 1.0);
-
-               // you can use here either avg_A over all bats or bat[j]->A, experiment with both!
-               cand->data[0] += epsilon * avg_A;
-               cand->data[1] += epsilon * avg_A;
-
-               // Clamp again after local search
-               Bat temp_bat;
-               temp_bat.pos = cand;
-               batCheckPos(&temp_bat, POS_BOUND);
-               copyVector(temp_bat.pos, cand);
+                // apply bound conditions
+                temp_bat.pos = cand;
+                batCheckPos(&temp_bat, POS_BOUND);
+                copyVector(temp_bat.pos, cand);
             }
-               
-            // -- EVALUATION, ACCEPTANCE AND UPDATE OF A AND R --
-            // Evaluate the new solutions after random walk
+
+            // EVALUATION AND ACCEPTANCE
+            // the new solutions (global + random walk) are evaluated
             double new_fitness = evaluateFitness2D(cand);
-            // Accept the new solution only if it is better && rand_acceptance < bat->a
             double rand_acceptance = random_uniform(0.0, 1.0);
-            if (new_fitness < fitness->data[j] && rand_acceptance< bat_array[j]->a) {
-                // free old position before updating
-                destroyVector(&(bat_array[j]->pos));
-                // Update position
-                bat_array[j]->pos = cand;
-                // Update fitness
-                fitness->data[j] = new_fitness;
-                // Update loudness and Pulse Rate
-                bat_array[j]->a = ALPHA * bat_array[j]->a;
-                bat_array[j]->r = R_0 * (1.0 - exp(-GAMMA * (double)i)); 
+
+            // Accept the new solution only if it is better && rand_acceptance < bat->a
+            if (new_fitness < fitness->data[i] && rand_acceptance < bat_array[i]->a) {
+                // free old position before allocating new one
+                destroyVector(&(bat_array[i]->pos));
+                bat_array[i]->pos = cand;
+                fitness->data[i] = new_fitness;
+                // Update Loudness and Pulse Rate
+                bat_array[i]->a = ALPHA * bat_array[i]->a;
+                bat_array[i]->r = R_0 * (1.0 - exp(-GAMMA * (double)iter));
             } else {
-                // free rejected pos
                 destroyVector(&cand);
             }
-
         }
 
-        // Update Global Best
-        best_index = minOfVec(fitness);
-        best_fitness = fitness->data[best_index];
+        // Update local best
+        local_best_index = minOfVec(fitness);
+        local_best_fitness = fitness->data[local_best_index];
+        local_min.fitness = local_best_fitness;
+        local_min.rank = my_rank;
+
+        // Find global best *process*
+        MPI_Allreduce(&local_min, &global_min, 1, MPI_DOUBLE_INT, MPI_MINLOC, MPI_COMM_WORLD);
+        global_best_fitness = global_min.fitness;
+
+        // Broadcast global best position
+        if (my_rank = global_min.rank) {
+            copyVector(bat_array[local_best_index]->pos, global_best_pos);
+        }
+        MPI_Bcast(global_best_pos->data, DIM, MPI_DOUBLE, global_min.rank, MPI_COMM_WORLD);
     }
 
-    // Print final Result
-    printf("\nBest Fitness: %f\n", best_fitness);
-    printf("Best position: (%f, %f)\n",
-        bat_array[best_index]->pos->data[0],
-        bat_array[best_index]->pos->data[1]);
-    // Print theoretical minima + distance from theory
-    printf("\nRosenbrock minima is at: (1, 1). with a value of 0");
-    printf("\nDistance between bat best position and function minima: (%f, %f)",
-                bat_array[best_index]->pos->data[0] - 1.0,
-                bat_array[best_index]->pos->data[1] - 1.0);
+ // Print results only from rank 0
+    if (my_rank == 0) {
+        printf("\nBest Fitness: %f\n", global_best_fitness);
+        printf("Best position: (%f, %f)\n", global_best_pos->data[0], global_best_pos->data[1]);
+        printf("\nRosenbrock minima is at: (1, 1) with a value of 0\n");
+        printf("Distance: (%f, %f)\n", 
+               global_best_pos->data[0] - 1.0, 
+               global_best_pos->data[1] - 1.0);
+    }
 
-    // Free each bat and its internal structures
-    for (int i = 0; i < N_BATS; i++) {
+    // Cleanup
+    for (int i = 0; i < local_n_bats; i++) {
         if (bat_array[i] != NULL) {
             destroyVector(&(bat_array[i]->pos));
             destroyVector(&(bat_array[i]->v));
             free(bat_array[i]);
         }
     }
-
     free(bat_array);
     destroyVector(&fitness);
+    destroyVector(&global_best_pos);
 
-
-    return 0;
+    MPI_Finalize();
+    return 0;   // Print results only from rank 0
 }

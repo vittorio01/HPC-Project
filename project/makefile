@@ -6,6 +6,7 @@ CHUNKS = 1
 PROCESSES = 1
 RAM=2gb
 PLACE=pack
+WALLTIME=0:01:00
 
 
 compile: libs-compile $(PRG)/main.c	
@@ -13,7 +14,7 @@ compile: libs-compile $(PRG)/main.c
 	rm -f $(RUN)
 	echo '#!/bin/bash' >> $(RUN)
 	echo '#PBS -l select=$(CHUNKS):ncpus=$(PROCESSES):mem=$(RAM)' >> $(RUN)
-	echo '#PBS -l walltime=0:01:00' >> $(RUN)
+	echo '#PBS -l walltime=$(WALLTIME)' >> $(RUN)
 	echo '#PBS -l place=$(PLACE)' >> $(RUN)
 	echo '#PBS -q short_cpuQ' >> $(RUN)
 	echo '#PBS -e $(PRG)/log/$(PRG).err' >> $(RUN)
