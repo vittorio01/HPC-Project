@@ -163,7 +163,7 @@ void divideRegion(Vector* pos, double radius, Vector* newPos, double* newRadius,
     *newRadius=radius*sqrt((rank+0.5)/proc);
     double theta = 2.0 * M_PI * rank / phi;
     newPos->data[0]=pos->data[0] + (*newRadius) * cos(theta);
-    newPos->data[1]=pos->data[1] + (*newRadius) * cos(theta);
+    newPos->data[1]=pos->data[1] + (*newRadius) * sim(theta);
 }
 
 void batAlgorithmMPI3D(batAlgorithmParameters* parameters, batAlgorithmResults* results, double (*objFunction)(Vector*),unsigned int mpiId, unsigned int mpiProc, void* mpiBuffer, unsigned int bufferDim) {
