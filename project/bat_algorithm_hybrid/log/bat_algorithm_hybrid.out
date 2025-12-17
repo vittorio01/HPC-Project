@@ -1,89 +1,19 @@
-Agent pid 93075
-Initializaing structures for launching the bat algorithm... done
-Initializing initial parameters... done
+Agent pid 50484
+Bat algorithm launch with MPI processes=16 and openMP processes =50
 * Bat algorithm parameters * 
-Number of bats and iterations: 2000, 50
-Problem dimension: 3 variables
-Initial position (0->3)
-[0.000000,	0.000000,	0.000000]
-Initial velocity (0->3)
-[0.000000,	0.000000,	0.000000]
-Generation radius for positions and velocities: 5.000000, 5.000000
+Number of bats and iterations: 1000, 100
+Problem dimension: 2 variables
+Initial position (0->2)
+[30.000000,	30.000000]
+Generation radius: 100.000000
 Frequency limits: [0.000000,2.000000]
 Initial loudness: 0.100000
 Initial pulse: 0.500000
 Initial gamma and alpha: 0.900000 , 0.900000
 
-Starting algorithm...
-Iteration 0 took 0.901420.
 * Bat algorithm results * 
-Best position found (0->3)
-[-0.020802,	0.586615,	-0.083002]
-Best fitness value: 0.351439
-Bat index: 205
+Best position found (0->2)
+[-0.203073,	0.276982]
+Best fitness value: 6.476693
+Bat index: 129
 
-Iteration 1 took 0.840689.
-* Bat algorithm results * 
-Best position found (0->3)
-[0.198142,	-0.124151,	0.148017]
-Best fitness value: 0.076583
-Bat index: 470
-
-Iteration 2 took 0.833724.
-* Bat algorithm results * 
-Best position found (0->3)
-[-0.023683,	-0.101124,	0.398294]
-Best fitness value: 0.169425
-Bat index: 1852
-
-Iteration 3 took 0.848145.
-* Bat algorithm results * 
-Best position found (0->3)
-[-0.182671,	0.256237,	0.253052]
-Best fitness value: 0.163062
-Bat index: 1150
-
-Iteration 4 took 0.842385.
-* Bat algorithm results * 
-Best position found (0->3)
-[0.162720,	-0.022780,	-0.185174]
-Best fitness value: 0.061286
-Bat index: 1628
-
-Iteration 5 took 0.848451.
-* Bat algorithm results * 
-Best position found (0->3)
-[-0.083440,	0.260993,	0.356615]
-Best fitness value: 0.202254
-Bat index: 1919
-
-Iteration 6 took 0.844790.
-* Bat algorithm results * 
-Best position found (0->3)
-[0.352614,	0.333331,	-0.110119]
-Best fitness value: 0.247573
-Bat index: 1257
-
-Iteration 7 took 0.823812.
-* Bat algorithm results * 
-Best position found (0->3)
-[0.336748,	0.004093,	-0.196191]
-Best fitness value: 0.151907
-Bat index: 229
-
-Iteration 8 took 0.873953.
-* Bat algorithm results * 
-Best position found (0->3)
-[0.006925,	-0.271931,	0.328089]
-Best fitness value: 0.181637
-Bat index: 1552
-
-Iteration 9 took 0.837819.
-* Bat algorithm results * 
-Best position found (0->3)
-[0.473292,	0.284502,	-0.342959]
-Best fitness value: 0.422567
-Bat index: 797
-
-Average execution time: 0.849519
-Destroying structures...
