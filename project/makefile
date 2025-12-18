@@ -16,7 +16,7 @@ compile: libs-compile $(PRG)/main.c
 	echo '#PBS -l select=$(CHUNKS):ncpus=$(PROCESSES):mem=$(RAM)' >> $(RUN)
 	echo '#PBS -l walltime=$(WALLTIME)' >> $(RUN)
 	echo '#PBS -l place=$(PLACE)' >> $(RUN)
-	echo '#PBS -q short_cpuQ' >> $(RUN)
+	echo '#PBS -q short_HPC4DS' >> $(RUN)
 	echo '#PBS -e $(PRG)/log/$(PRG).err' >> $(RUN)
 	echo '#PBS -o $(PRG)/log/$(PRG).out' >> $(RUN)
 	echo 'cd $${PBS_O_WORKDIR}' >> $(RUN)
@@ -26,7 +26,7 @@ compile: libs-compile $(PRG)/main.c
 	mkdir -p  $(PRG)/out/ $(PRG)/log/
 	@echo "--- Compiling MPI program ---"
 	# module load mpich-3.2
-	$(CMP) -std=c11 -g -Wall -fopenmp -o $(PRG)/out/$(PRG) $(PRG)/main.c -lm -I $(LIBS) $(LIBS)/*.o
+	$(CMP) -std=gnu11 -g -Wall -fopenmp -o $(PRG)/out/$(PRG) $(PRG)/main.c -lm -I $(LIBS) $(LIBS)/*.o
 	@echo "--- Build complete ---"
 
 run: compile

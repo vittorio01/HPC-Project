@@ -8,6 +8,7 @@
 #include <sys/time.h>
 #include <time.h>
 
+#define M_PI 3.14159265358979323846
 
 #define FMAX            2
 #define FMIN            0
@@ -16,7 +17,7 @@
 #define GAMMA           0.9
 #define ALPHA           0.9
 #define VECTORDIM       2
-#define INITPOSRADIUS   100
+#define INITPOSRADIUS   1000
 
 #define OMPTHREADS      1000
 #define ITERATIONS      100
@@ -24,6 +25,16 @@
 
 typedef enum {false,true} bool;
 
+
+double objectiveFunction(Vector* pos) {
+    double s=0;
+    for (unsigned int i=0;i<pos->d;i++) {
+        s+=pow(pos->data[i],2);
+    }
+    return s;
+}
+
+/*
 double objectiveFunction(Vector* pos) {
     if (pos==NULL) return -1;
     
@@ -34,7 +45,7 @@ double objectiveFunction(Vector* pos) {
     }
 
     return s;
-}
+}*/
 
 double randDoubleRadius(double pos, double radius, unsigned int* seed) {
     return (pos-radius) + (2*radius) * ((double) rand_r(seed) / RAND_MAX);
@@ -163,7 +174,7 @@ void divideRegion(Vector* pos, double radius, Vector* newPos, double* newRadius,
     *newRadius=radius*sqrt((rank+0.5)/proc);
     double theta = 2.0 * M_PI * rank / phi;
     newPos->data[0]=pos->data[0] + (*newRadius) * cos(theta);
-    newPos->data[1]=pos->data[1] + (*newRadius) * sim(theta);
+    newPos->data[1]=pos->data[1] + (*newRadius) * sin(theta);
 }
 
 void batAlgorithmMPI3D(batAlgorithmParameters* parameters, batAlgorithmResults* results, double (*objFunction)(Vector*),unsigned int mpiId, unsigned int mpiProc, void* mpiBuffer, unsigned int bufferDim) {

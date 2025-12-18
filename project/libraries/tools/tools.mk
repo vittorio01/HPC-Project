@@ -7,7 +7,7 @@ TOOLS_SRC:=tools
 libs-compile-tools: libs-compile-data 
 	mkdir -p $(LIBS_SRCS)/$(TOOLS_SRC)/$(TOOLS_OUT_FOLDER)
 	
-	gcc -std=c11 -o $(LIBS_SRCS)/$(TOOLS_SRC)/$(TOOLS_OUT_FOLDER)/$(TOOLS_SRC).o -c $(LIBS_SRCS)/$(TOOLS_SRC)/$(TOOLS_SRC_FOLDER)/$(TOOLS_SRC).c -I $(LIBS) 
+	gcc -std=gnu11 -o $(LIBS_SRCS)/$(TOOLS_SRC)/$(TOOLS_OUT_FOLDER)/$(TOOLS_SRC).o -c $(LIBS_SRCS)/$(TOOLS_SRC)/$(TOOLS_SRC_FOLDER)/$(TOOLS_SRC).c -I $(LIBS) 
 
 	ln -s -f ../../$(LIBS_SRCS)/$(TOOLS_SRC)/$(TOOLS_OUT_FOLDER)/$(TOOLS_SRC).o $(LIBS)/$(TOOLS_SRC).o
 	ln -s -f ../../$(LIBS_SRCS)/$(TOOLS_SRC)/$(TOOLS_SRC_FOLDER)/$(TOOLS_SRC).h $(LIBS)/$(TOOLS_SRC).h
