@@ -1,19 +1,84 @@
-Agent pid 50484
-Bat algorithm launch with MPI processes=16 and openMP processes =50
+Agent pid 782505
+Bat algorithm launch with MPI processes=50 and openMP processes=50
 * Bat algorithm parameters * 
-Number of bats and iterations: 1000, 100
+Number of bats and iterations: 200, 200
 Problem dimension: 2 variables
 Initial position (0->2)
 [30.000000,	30.000000]
-Generation radius: 100.000000
-Frequency limits: [0.000000,2.000000]
-Initial loudness: 0.100000
-Initial pulse: 0.500000
+Generation radius: 1000.000000
+Frequency limits: [0.000000,100.000000]
+Initial loudness: 100.000000
+Initial pulse: 0.900000
 Initial gamma and alpha: 0.900000 , 0.900000
 
+Iteration 0 took 1.153198
 * Bat algorithm results * 
 Best position found (0->2)
-[-0.203073,	0.276982]
-Best fitness value: 6.476693
-Bat index: 129
+[3.389580,	1.917146]
+Best fitness value: 15.164702
+Bat index: 26
 
+Iteration 1 took 1.000424
+* Bat algorithm results * 
+Best position found (0->2)
+[3.512180,	6.897777]
+Best fitness value: 59.914736
+Bat index: 40
+
+Iteration 2 took 0.999211
+* Bat algorithm results * 
+Best position found (0->2)
+[6.496349,	-4.704178]
+Best fitness value: 64.331841
+Bat index: 150
+
+Iteration 3 took 0.991848
+* Bat algorithm results * 
+Best position found (0->2)
+[-10.690143,	-0.668379]
+Best fitness value: 114.725897
+Bat index: 134
+
+Iteration 4 took 0.988510
+* Bat algorithm results * 
+Best position found (0->2)
+[-2.787937,	-6.286341]
+Best fitness value: 47.290674
+Bat index: 132
+
+Iteration 5 took 0.992511
+* Bat algorithm results * 
+Best position found (0->2)
+[2.348155,	-4.555212]
+Best fitness value: 26.263793
+Bat index: 174
+
+Iteration 6 took 1.005343
+* Bat algorithm results * 
+Best position found (0->2)
+[1.968095,	10.981769]
+Best fitness value: 124.472648
+Bat index: 140
+
+Iteration 7 took 0.986080
+* Bat algorithm results * 
+Best position found (0->2)
+[2.169860,	-0.328946]
+Best fitness value: 4.816498
+Bat index: 80
+
+Iteration 8 took 0.975928
+* Bat algorithm results * 
+Best position found (0->2)
+[12.062261,	1.623034]
+Best fitness value: 148.132371
+Bat index: 61
+
+Iteration 9 took 0.995637
+* Bat algorithm results * 
+Best position found (0->2)
+[8.245039,	-0.861975]
+Best fitness value: 68.723672
+Bat index: 198
+
+Average execution time: 1.008869
