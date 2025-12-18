@@ -8,9 +8,7 @@
 
 #include "data.h"
 #include "bat.h"
-#include "bat.c"
 #include "tools_1.h"
-#include "tools_1.c"
 
 
 // -- Bat Properties --

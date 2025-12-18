@@ -1,0 +1,84 @@
+Agent pid 198190
+Bat algorithm launch with MPI processes=1 and openMP processes=50
+* Bat algorithm parameters * 
+Number of bats and iterations: 200, 200
+Problem dimension: 2 variables
+Initial position (0->2)
+[30.000000,	30.000000]
+Generation radius: 1000.000000
+Frequency limits: [0.000000,100.000000]
+Initial loudness: 100.000000
+Initial pulse: 0.900000
+Initial gamma and alpha: 0.900000 , 0.900000
+
+Iteration 0 took 0.318638
+* Bat algorithm results * 
+Best position found (0->2)
+[176.701887,	262.886841]
+Best fitness value: 100333.048285
+Bat index: 18
+
+Iteration 1 took 0.319609
+* Bat algorithm results * 
+Best position found (0->2)
+[41.976629,	18.179612]
+Best fitness value: 2092.535665
+Bat index: 159
+
+Iteration 2 took 0.339490
+* Bat algorithm results * 
+Best position found (0->2)
+[-92.705519,	-444.471479]
+Best fitness value: 206149.209285
+Bat index: 198
+
+Iteration 3 took 0.312946
+* Bat algorithm results * 
+Best position found (0->2)
+[161.346659,	146.147749]
+Best fitness value: 47391.908823
+Bat index: 15
+
+Iteration 4 took 0.287100
+* Bat algorithm results * 
+Best position found (0->2)
+[-21.471690,	-35.070446]
+Best fitness value: 1690.969648
+Bat index: 172
+
+Iteration 5 took 0.318863
+* Bat algorithm results * 
+Best position found (0->2)
+[426.905016,	295.732322]
+Best fitness value: 269705.498850
+Bat index: 15
+
+Iteration 6 took 0.323939
+* Bat algorithm results * 
+Best position found (0->2)
+[49.337572,	50.343524]
+Best fitness value: 4968.666444
+Bat index: 63
+
+Iteration 7 took 0.333130
+* Bat algorithm results * 
+Best position found (0->2)
+[-183.017153,	-174.404446]
+Best fitness value: 63912.188901
+Bat index: 185
+
+Iteration 8 took 0.270831
+* Bat algorithm results * 
+Best position found (0->2)
+[118.193709,	134.781885]
+Best fitness value: 32135.909477
+Bat index: 24
+
+Iteration 9 took 0.352578
+* Bat algorithm results * 
+Best position found (0->2)
+[-211.279691,	-177.026586]
+Best fitness value: 75977.520342
+Bat index: 196
+
+Average execution time: 0.317712
