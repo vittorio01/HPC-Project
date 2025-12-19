@@ -4,183 +4,183 @@
 #include <sys/time.h>
 #include <time.h>
 
-#define N_BATS  40          
-#define N_DIM   2
-#define N_ITER  5000        // more iterations for better accuracy
-#define F_MIN   0.0f
-#define F_MAX   2.0f
-
-/* Bat Algorithm parameters  */
-#define ALPHA   0.9f        // loudness decay
-#define GAMMA   0.9f        // pulse rate increase
-#define A0      1.0f        // initial loudness
-#define R0      0.5f        // initial pulse rate
+#include "tools.h"   // <-- brings batAlgorithmParameters / batAlgorithmResults + includes data.h
 
 /* Sphere objective: f(x) = sum x_i^2 */
-static float objective(const float *x)
+static double objective(const double *x, unsigned int dim)
 {
-    float s = 0.0f;
-    for (int i = 0; i < N_DIM; ++i)
+    double s = 0.0;
+    for (unsigned int i = 0; i < dim; ++i)
         s += x[i] * x[i];
     return s;
 }
 
-static float rand_float(void)
+static double rand_double(void)
 {
-    return (float)rand() / (float)RAND_MAX;
+    return (double)rand() / (double)RAND_MAX;
 }
 
-/* Runs one instance of the Bat Algorithm.
- * best_out: array of size N_DIM where we store the best position.
- * Returns: best fitness.
+/* Main CPU version required by issue #15:
+ * - reads everything from parameters
+ * - writes everything into results
  */
-static float bat_algorithm(float best_out[N_DIM])
+static void batAlgorithmCPU(batAlgorithmParameters *parameters, batAlgorithmResults *results)
 {
-    float x[N_BATS][N_DIM];         // positions
-    float v[N_BATS][N_DIM] = {0};   // velocities
-    float f[N_BATS];                // fitness
+    const unsigned int bats = parameters->bats;
+    const unsigned int dim  = parameters->vectorDim;
+    const unsigned int iters = parameters->iterations;
 
-    float A[N_BATS];                // loudness
-    float r[N_BATS];                // pulse rate
+    Matrix *x = NULL;   // positions  [bats x dim]
+    Matrix *v = NULL;   // velocities [bats x dim]
+    Vector *f = NULL;   // fitness    [bats]
+    Vector *A = NULL;   // loudness   [bats]
+    Vector *r = NULL;   // pulse rate [bats]
 
-    float best[N_DIM];              // global best position
-    float best_f = 1.0e30f;         // global best fitness
+    Vector *best = NULL; // best position [dim]
+    double best_f = 1.0e300;
+    unsigned int best_idx = 0;
 
-    /* ---- Initialization ---- */
-    for (int i = 0; i < N_BATS; ++i) {
-        for (int d = 0; d < N_DIM; ++d) {
-            x[i][d] = rand_float() * 10.0f - 5.0f;   // [-5, 5]
+    /* allocate dynamic structures (from data.h library) */
+    initMatrix(&x, bats, dim);
+    initMatrix(&v, bats, dim);
+    initVector(&f, bats);
+    initVector(&A, bats);
+    initVector(&r, bats);
+    initVector(&best, dim);
+
+    initMatrixData(v, 0.0);
+
+    /* ---- Initialization (spawn around initPos with radius) ---- */
+    for (unsigned int i = 0; i < bats; ++i) {
+        for (unsigned int d = 0; d < dim; ++d) {
+            double u = 2.0 * rand_double() - 1.0; // [-1,1]
+            x->data[i][d] = parameters->initPos->data[d] + u * parameters->initPosRadius;
         }
-        f[i] = objective(x[i]);
 
-        A[i] = A0;
-        r[i] = R0;
+        f->data[i] = objective(x->data[i], dim);
 
-        if (f[i] < best_f) {
-            best_f = f[i];
-            for (int d = 0; d < N_DIM; ++d)
-                best[d] = x[i][d];
+        A->data[i] = parameters->initLoudness;
+        r->data[i] = parameters->initPulse;
+
+        if (f->data[i] < best_f) {
+            best_f = f->data[i];
+            best_idx = i;
+            for (unsigned int d = 0; d < dim; ++d)
+                best->data[d] = x->data[i][d];
         }
     }
 
     /* ---- Main loop ---- */
-    for (int t = 1; t <= N_ITER; ++t) {
+    for (unsigned int t = 1; t <= iters; ++t) {
 
-        /* average loudness A^t (needed for local random walk) */
-        float A_mean = 0.0f;
-        for (int i = 0; i < N_BATS; ++i)
-            A_mean += A[i];
-        A_mean /= (float)N_BATS;
+        /* average loudness */
+        double A_mean = 0.0;
+        for (unsigned int i = 0; i < bats; ++i)
+            A_mean += A->data[i];
+        A_mean /= (double)bats;
 
-        for (int i = 0; i < N_BATS; ++i) {
+        for (unsigned int i = 0; i < bats; ++i) {
 
-            /* Frequency and global move */
-            float freq = F_MIN + (F_MAX - F_MIN) * rand_float();
+            /* frequency and global move */
+            double freq = parameters->fMin + (parameters->fMax - parameters->fMin) * rand_double();
 
-            for (int d = 0; d < N_DIM; ++d) {
-                v[i][d] += (x[i][d] - best[d]) * freq;
-                x[i][d] += v[i][d];
+            for (unsigned int d = 0; d < dim; ++d) {
+                v->data[i][d] += (x->data[i][d] - best->data[d]) * freq;
+                x->data[i][d] += v->data[i][d];
             }
 
-            /* Local random walk around the best solution
-                   with probability (rand > r[i]) */
-            if (rand_float() > r[i]) {
-                float eps = 2.0f * rand_float() - 1.0f;  // [-1,1]
-                for (int d = 0; d < N_DIM; ++d) {
-                    x[i][d] = best[d] + eps * A_mean;
+            /* local random walk with probability (rand > r[i]) */
+            if (rand_double() > r->data[i]) {
+                double eps = 2.0 * rand_double() - 1.0;  // [-1,1]
+                for (unsigned int d = 0; d < dim; ++d) {
+                    x->data[i][d] = best->data[d] + eps * A_mean;
                 }
             }
 
-            /* Evaluate new solution */
-            float f_new = objective(x[i]);
+            /* evaluate */
+            double f_new = objective(x->data[i], dim);
 
-            /* Stochastic acceptance using loudness */
-            if (f_new <= f[i] && rand_float() < A[i]) {
+            /* stochastic acceptance using loudness */
+            if (f_new <= f->data[i] && rand_double() < A->data[i]) {
 
-                f[i] = f_new;
+                f->data[i] = f_new;
 
-                /* Update loudness and pulse rate */
-                A[i] *= ALPHA;
-                r[i] = R0 * (1.0f - expf(-GAMMA * (float)t));
+                /* update loudness and pulse rate (from parameters->alpha/gamma) */
+                A->data[i] *= parameters->alpha;
+                r->data[i] = parameters->initPulse * (1.0 - exp(-parameters->gamma * (double)t));
 
-                /* Update global best if needed */
+                /* update global best */
                 if (f_new < best_f) {
                     best_f = f_new;
-                    for (int d = 0; d < N_DIM; ++d)
-                        best[d] = x[i][d];
+                    best_idx = i;
+                    for (unsigned int d = 0; d < dim; ++d)
+                        best->data[d] = x->data[i][d];
                 }
             }
         }
     }
 
-    /* copy best position out */
-    if (best_out) {
-        for (int d = 0; d < N_DIM; ++d)
-            best_out[d] = best[d];
-    }
+    /* ---- Save into results structure (required by tools.h) ---- */
+    results->bestFitness = best_f;
+    results->bestIndex   = best_idx;
+    copyVector(best, results->bestPos);
 
-    return best_f;
+    /* free local dynamic allocations */
+    destroyMatrix(&x);
+    destroyMatrix(&v);
+    destroyVector(&f);
+    destroyVector(&A);
+    destroyVector(&r);
+    destroyVector(&best);
 }
 
 int main(void)
 {
     struct timeval start, end;
-    double total_time = 0.0;
-    const int runs = 10;
-
-    float global_best[N_DIM];
-    float global_best_f = 1.0e30f;
 
     srand((unsigned)time(NULL));
 
-    for (int r = 0; r < runs; ++r) {
-        float best_run_pos[N_DIM];
+    /* Allocate + init the official IO structs */
+    batAlgorithmParameters *parameters = NULL;
+    batAlgorithmResults *results = NULL;
 
-        gettimeofday(&start, NULL);
-        float best_run_f = bat_algorithm(best_run_pos);
-        gettimeofday(&end, NULL);
+    initParameters(&parameters, 2);
+    initResults(&results, 2);
 
-        double elapsed = (double)(end.tv_sec - start.tv_sec) +
-                         (double)(end.tv_usec - start.tv_usec) / 1.0e6;
+    /* Override defaults to match your old constants */
+    parameters->bats = 40;
+    parameters->iterations = 5000;
 
-        printf("Run %2d: best fitness = %.6f, time = %.6f sec\n",
-               r + 1, best_run_f, elapsed);
+    parameters->fMin = 0.0;
+    parameters->fMax = 2.0;
 
-        total_time += elapsed;
+    parameters->alpha = 0.9;
+    parameters->gamma = 0.9;
 
-        if (best_run_f < global_best_f) {
-            global_best_f = best_run_f;
-            for (int d = 0; d < N_DIM; ++d)
-                global_best[d] = best_run_pos[d];
-        }
-    }
+    parameters->initLoudness = 1.0;
+    parameters->initPulse    = 0.5;
 
-    printf("Average execution time over %d runs: %.6f sec\n",
-           runs, total_time / runs);
+    /* old code used random [-5,5]; we emulate that via initPos + radius */
+    for (unsigned int d = 0; d < parameters->vectorDim; ++d)
+        parameters->initPos->data[d] = 0.0;
+    parameters->initPosRadius = 5.0;
 
-    /* ---- Final solution and correctness check ---- */
-    printf("\n=== Final best solution over all runs ===\n");
-    printf("Best fitness found: %.8f\n", global_best_f);
-    printf("Best position: [");
-    for (int d = 0; d < N_DIM; ++d)
-        printf("%s%.8f", d == 0 ? "" : ", ", global_best[d]);
-    printf("]\n");
+    /* Run + time */
+    gettimeofday(&start, NULL);
+    batAlgorithmCPU(parameters, results);
+    gettimeofday(&end, NULL);
 
-    /* For Sphere: optimum at (0,...,0), f(x*) = 0 */
-    float dist2 = 0.0f;
-    for (int d = 0; d < N_DIM; ++d)
-        dist2 += global_best[d] * global_best[d];
-    float dist = sqrtf(dist2);
+    double elapsed = (double)(end.tv_sec - start.tv_sec) +
+                     (double)(end.tv_usec - start.tv_usec) / 1.0e6;
 
-    printf("True optimum (Sphere): f(x*) = 0 at (0,...,0)\n");
-    printf("Fitness error: %.8e\n", global_best_f);
-    printf("Distance of best point to optimum: %.8e\n", dist);
+    printf("Execution time: %.6f sec\n\n", elapsed);
 
-    const float TOL = 1e-3f;
-    if (global_best_f < TOL)
-        printf("=> Solution is CLOSE to the true optimum (within tolerance %.1e).\n", TOL);
-    else
-        printf("=> Solution is NOT very close yet (try different params / more iterations).\n", TOL);
+    /* Print using the dedicated library function (required) */
+    printResults(results);
+
+    /* cleanup (required) */
+    destroyResults(&results);
+    destroyParameters(&parameters);
 
     return 0;
 }
