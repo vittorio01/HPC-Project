@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
         global_best_fitness = global_min.fitness;
 
         // Broadcast global best position
-        if (my_rank = global_min.rank) {
+        if (my_rank == global_min.rank) {
             copyVector(bat_array[local_best_index]->pos, global_best_pos);
         }
         MPI_Bcast(global_best_pos->data, DIM, MPI_DOUBLE, global_min.rank, MPI_COMM_WORLD);

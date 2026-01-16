@@ -15,7 +15,7 @@ RAM=2gb
 PLACE=pack
 WALLTIME=0:01:00
 QUEUE=shortCPUQ
-MODULE=OpenMPI/4.1.5-GCC-12.3.0
+MODULE=OpenMPI/4.1.6-GCC-13.2.0
 
 compile: libs-compile $(PRG)/main.c	
 	@echo "--- Generating PBS script ---"
