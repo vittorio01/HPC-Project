@@ -44,6 +44,10 @@ int main(int argc, char** argv) {
     // Different random seed for every process
     srand((unsigned int) time(NULL) + my_rank);
 
+    // -- Timing: total runtime --
+    MPI_Barrier(MPI_COMM_WORLD);
+    double t_total_start = MPI_Wtime();
+
     // Compute local bat count per process
     int local_n_bats = N_BATS / comm_sz;
     int remainder = N_BATS % comm_sz;
@@ -93,6 +97,10 @@ int main(int argc, char** argv) {
         copyVector(bat_array[local_best_index]->pos, global_best_pos);
     }
     MPI_Bcast(global_best_pos->data, DIM, MPI_DOUBLE, global_min.rank, MPI_COMM_WORLD);
+
+    // -- Timing: Algorithm time (init done, start measuring main work)
+    MPI_Barrier(MPI_COMM_WORLD);
+    double t_algo_start = MPI_Wtime();
 
     // Main optimization loop
     for (int iter = 0; iter < N_ITER; iter++) {
@@ -189,14 +197,25 @@ int main(int argc, char** argv) {
         MPI_Bcast(global_best_pos->data, DIM, MPI_DOUBLE, global_min.rank, MPI_COMM_WORLD);
     }
 
- // Print results only from rank 0
+    // -- Timing: Calculate total exec time --
+    MPI_Barrier(MPI_COMM_WORLD);
+    double t_algo_end = MPI_Wtime();
+    double t_algo_local = t_algo_end - t_algo_start;
+
+    // Print results only from rank 0
     if (my_rank == 0) {
         printf("\nBest Fitness: %f\n", global_best_fitness);
         printf("Best position: (%f, %f)\n", global_best_pos->data[0], global_best_pos->data[1]);
         printf("\nRosenbrock minima is at: (1, 1) with a value of 0\n");
-        printf("Distance: (%f, %f)\n", 
+        printf("\nDistance: (%f, %f)\n", 
                global_best_pos->data[0] - 1.0, 
                global_best_pos->data[1] - 1.0);
+
+        MPI_Barrier(MPI_COMM_WORLD);       
+        double t_total_end = MPI_Wtime();
+        double t_total_local = t_total_end - t_total_start;
+        printf("\nExecution time (Total): %.6f\n", t_total_local);
+        printf("\nExecution time (Algo): %.6f\n", t_algo_local);
     }
 
     // Cleanup
