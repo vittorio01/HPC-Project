@@ -206,16 +206,16 @@ int main(int argc, char** argv) {
     if (my_rank == 0) {
         printf("\nBest Fitness: %f\n", global_best_fitness);
         printf("Best position: (%f, %f)\n", global_best_pos->data[0], global_best_pos->data[1]);
-        printf("\nRosenbrock minima is at: (1, 1) with a value of 0\n");
-        printf("\nDistance: (%f, %f)\n", 
+        printf("Rosenbrock minima is at: (1, 1) with a value of 0\n");
+        printf("Distance: (%f, %f)", 
                global_best_pos->data[0] - 1.0, 
                global_best_pos->data[1] - 1.0);
 
         MPI_Barrier(MPI_COMM_WORLD);       
         double t_total_end = MPI_Wtime();
         double t_total_local = t_total_end - t_total_start;
-        printf("\nExecution time (Total): %.6f\n", t_total_local);
-        printf("\nExecution time (Algo): %.6f\n", t_algo_local);
+        printf("\nExecution time (Total): %.6f s", t_total_local);
+        printf("\nExecution time (Algo): %.6f s", t_algo_local);
     }
 
     // Cleanup
