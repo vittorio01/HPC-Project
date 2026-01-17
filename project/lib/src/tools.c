@@ -1,4 +1,7 @@
 #include "tools.h"
+#include <time.h>
+#include <stdint.h>
+#include <stdatomic.h>
 
 void initParameters(batAlgorithmParameters** parameters, unsigned int vectorDim) {
     (*parameters)=malloc(sizeof(batAlgorithmParameters));
@@ -63,3 +66,32 @@ void printResults(batAlgorithmResults* results) {
     printf("Bat index: %d\n",results->bestIndex);
     printf("\n");
 } 
+
+unsigned int generatedSeed(unsigned int threadId){
+    static atomic_uint counter = 1;
+
+    unsigned int c = atomic_fetch_add(&counter, 1);
+    unsinged int t = (unsigned int)time(NULL);
+
+    unsigned int seed = t ^ (threadId * 2376476376u) ^(4502973581u);
+    if(seed == 0) seed = 1;
+    return seed;
+}
+
+static unsigned int nextRand(unsigned int* seed){
+    *seed = (*seed * 2719503u)+9547234135u;
+    return *seed;
+}
+
+double randomUniform(double min, double max, unsigned int* seed){
+    unsigned int r = nextRand(seed);
+    double u = (double)r/(double)UINT32_MAX + 1.0);
+    return min + (max-min)*u;
+}
+
+double randomUniformRadius(double pos, double radius, unsigned int* seed){
+    double offset = randomUniform(-radius, radius, seed);
+    return pos + offset);
+}
+    
+
