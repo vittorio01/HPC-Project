@@ -93,6 +93,14 @@ void destroyResults(batAlgorithmResults** results);
 */
 void printResults(batAlgorithmResults* results);
 
+unsigned int generateSeed(unsigned int threadId) ;
+
+
+double randomUniform(double min, double max, unsigned int* seed);
+
+
+double randomUniformRadius(double pos, double radius, unsigned int* seed);
+
 
 
 #endif
