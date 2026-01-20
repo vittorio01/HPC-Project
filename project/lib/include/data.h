@@ -11,7 +11,7 @@ d -> dimension of the vector
 data -> array of data
 */
 typedef struct Vector {
-    double* data;
+    double * data;
     unsigned int d;
 } Vector;
 
@@ -22,7 +22,7 @@ dy -> number of elements per row
 data -> array of pointers that contins the rows
 */
 typedef struct Matrix {
-    double** data;
+    double ** data;
     unsigned int dx;
     unsigned int dy;
 } Matrix;

@@ -27,8 +27,9 @@
 #define V_BOUND 5.0  // Max Initial Random Velocity
 
 // -- Function Properties --
-// space is gonna be from [-POS_BOUND, POS_BOUND] x [-POS_BOUND, POS_BOUND], so a square
-#define POS_BOUND 100  // Max X, Y coordinates
+// space is gonna be from [-POS_BOUND, POS_BOUND] x [-POS_BOUND, POS_BOUND], so a square. In case of more dimensions
+// then it's gonna be a Cube or related.
+#define POS_BOUND 100  // Max X, Y, Z, ... coordinates
 #define DIM 2         // Problem Dimension
 
 int main(int argc, char** argv) {
@@ -226,10 +227,10 @@ int main(int argc, char** argv) {
             free(bat_array[i]);
         }
     }
+
     free(bat_array);
     destroyVector(&fitness);
     destroyVector(&global_best_pos);
-
     MPI_Finalize();
-    return 0;   // Print results only from rank 0
+    return 0;   
 }

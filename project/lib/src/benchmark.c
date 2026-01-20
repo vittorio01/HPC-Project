@@ -1,4 +1,5 @@
-#include "tools_1.h"
+#include "benchmark.h"
+
 #include <math.h>
 #include <stdlib.h>
 
@@ -42,7 +43,3 @@ double objective_eval(ObjectiveFn f, const Vector *pos) {
     #endif
 }
 
-// check if it is really uniform
-double random_uniform(double min, double max) {
-    return min + ((double) rand() / (double) RAND_MAX)*(max-min);
-}

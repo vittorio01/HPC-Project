@@ -1,8 +1,5 @@
-/*
-*   Useful functions
-*/
-#ifndef __TOOLS_1_H__
-#define __TOOLS_1_H__
+#ifndef __BENCHMARK_H__
+#define __BENCHMARK_H__
 
 #include "data.h";
 
@@ -20,10 +17,6 @@ typedef double (*ObjectiveFn)(const Vector *pos);
 double rosenbrock(const Vector *pos);
 double sphere(const Vector *pos);
 
-/**
- * Create a random double with uniform distribution between min and max
- */
-double random_uniform(double min, double max);
-
-
 #endif
+
+
