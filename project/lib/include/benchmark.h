@@ -1,7 +1,7 @@
 #ifndef __BENCHMARK_H__
 #define __BENCHMARK_H__
 
-#include "data.h";
+#include "data.h"
 
 // Toggle this definition to switch modes
 // 0 = Minimize

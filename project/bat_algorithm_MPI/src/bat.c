@@ -1,5 +1,6 @@
 #include "bat.h"
 #include "tools.h"
+#include <stdio.h>
 #include <time.h>
 
 void batInit(Bat* bat, Vector* initPos, Vector* initV, double initF, double initA, double initR) {
@@ -13,10 +14,10 @@ void batInit(Bat* bat, Vector* initPos, Vector* initV, double initF, double init
     bat->r = initR;
 }
 
-void batRandom(Bat* bat, double posBound, double vBound, double initF) {
+void batRandom(Bat* bat, unsigned int dim, double posBound, double vBound, double initF) {
     // Generate a random position
     Vector * pos = NULL;
-    initVector(&pos, 2);
+    initVector(&pos, dim);
     if (pos == NULL) {
         fprintf(stderr, "\nError: Failed to init position vector in batRandom()");
         exit(EXIT_FAILURE);        
@@ -25,7 +26,7 @@ void batRandom(Bat* bat, double posBound, double vBound, double initF) {
 
     // Generate random velocity
     Vector * v = NULL;
-    initVector(&v, 2);
+    initVector(&v, dim);
     if (v == NULL) {
         fprintf(stderr, "Error: Failed to init velocity vector in batRandom()");
         exit(EXIT_FAILURE);        
@@ -44,21 +45,13 @@ void batCheckPos(Bat *bat, double posBound) {
    if (bat == NULL || bat->pos == NULL) {
        return;
    }
-   // checking X position (positive)
-   if (bat->pos->data[0] > posBound) {
-       bat->pos->data[0] = posBound;
-   }
-   // checking X position (negative)
-   if (bat->pos->data[0] < -posBound) {
-       bat->pos->data[0] = -posBound;
-   }
-   // checking Y position (positive)
-   if (bat->pos->data[1] > posBound) {
-       bat->pos->data[1] = posBound;
-   }
-   // checking Y position (negative)
-   if (bat->pos->data[1] < -posBound) {
-       bat->pos->data[1] = -posBound;
+
+   for (unsigned int i = 0; i < bat->pos->d; i++) {
+       if (bat->pos->data[i] > posBound) {
+           bat->pos->data[i] = posBound;
+       } else if (bat->pos->data[i] < -posBound) {
+           bat->pos->data[i] = -posBound;
+       }
    }
 }
 

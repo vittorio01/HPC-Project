@@ -34,11 +34,12 @@ void batInit(Bat* bat, Vector* initX, Vector* initV, double initFreq, double ini
 * batRandom() spawns a bat at a random position in the function definition space
 * and with a random velocity, pulse_rate (0, 1) and loudness (0, 1)
 * bat -> pointer to bat struct
-* posBound -> max random X,Y coordinates (a square)
-* vBound -> max random velocity
+* dim -> dimension of the problem
+* posBound -> max random coordinates for each dimension
+* vBound -> max random velocity for each dimension
 * initF -> initial frequency
 */
-void batRandom(Bat* bat, double posBound, double vBound, double initF);
+void batRandom(Bat* bat, unsigned int dim, double posBound, double vBound, double initF);
 
 /**
  * baCheckPos checks if the current bat position is within bounds, if not it changes the bat position to the max bound
