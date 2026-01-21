@@ -1,5 +1,5 @@
 #include "bat.h"
-#include "tools_1.h"
+#include "tools.h"
 #include <time.h>
 
 void batInit(Bat* bat, Vector* initPos, Vector* initV, double initF, double initA, double initR) {
