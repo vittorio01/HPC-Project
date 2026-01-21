@@ -93,6 +93,10 @@ void destroyResults(batAlgorithmResults** results);
 */
 void printResults(batAlgorithmResults* results);
 
+/**
+ * Uniform random number generation (Apparently not so uniform, so needs updating or alternative)
+ */
+double random_uniform(double min, double max);
 
 
 #endif

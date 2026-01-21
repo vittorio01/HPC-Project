@@ -10,3 +10,12 @@
 
 ## Next Implementation Ideas
 - Create a script to find the best parameters.
+- We need to consider using another Rand like drand48() or something else
+    cause apparently the normal rand is not suitable for simulations
+
+
+## Log
+
+- Moved my random_uniform() in shared tools.h . random_uniform is still not uniform so it needs probably updating or
+    better alternative.
+

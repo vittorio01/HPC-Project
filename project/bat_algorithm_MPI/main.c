@@ -6,9 +6,13 @@
 #include <time.h>
 #include <mpi.h>
 
+// -- Shared Libraries --
 #include "data.h"
+#include "tools.h"
+#include "benchmark.h"
+
+// -- Project Libraries --
 #include "bat.h"
-#include "tools_1.h"
 
 
 // -- Bat Properties --
@@ -199,27 +203,15 @@ int main(int argc, char** argv) {
     }
 
     // -- Timing: Calculate total exec time --
-    MPI_Barrier(MPI_COMM_WORLD);
     double t_algo_end = MPI_Wtime();
     double t_algo_local = t_algo_end - t_algo_start;
 
-    // Print results only from rank 0
-    if (my_rank == 0) {
-        printf("\nBest Fitness: %f\n", global_best_fitness);
-        printf("Best position: (%f, %f)\n", global_best_pos->data[0], global_best_pos->data[1]);
-        printf("Rosenbrock minima is at: (1, 1) with a value of 0\n");
-        printf("Distance: (%f, %f)", 
-               global_best_pos->data[0] - 1.0, 
-               global_best_pos->data[1] - 1.0);
+    // Save best values before cleanup
+    double best_fitness_snapshot = global_best_fitness;
+    double best_x_snapshot = global_best_pos->data[0];
+    double best_y_snapshot = global_best_pos->data[1];
 
-        MPI_Barrier(MPI_COMM_WORLD);       
-        double t_total_end = MPI_Wtime();
-        double t_total_local = t_total_end - t_total_start;
-        printf("\nExecution time (Total): %.6f s", t_total_local);
-        printf("\nExecution time (Algo): %.6f s", t_algo_local);
-    }
-
-    // Cleanup
+    // Cleanup 
     for (int i = 0; i < local_n_bats; i++) {
         if (bat_array[i] != NULL) {
             destroyVector(&(bat_array[i]->pos));
@@ -227,10 +219,31 @@ int main(int argc, char** argv) {
             free(bat_array[i]);
         }
     }
-
     free(bat_array);
     destroyVector(&fitness);
     destroyVector(&global_best_pos);
+
+    // -- Timing: total runtime --
+    double t_total_end = MPI_Wtime();
+    double t_total_local = t_total_end - t_total_start;
+
+    // Overall job time = slowest rank
+    double t_algo_max = 0.0, t_total_max = 0.0;
+    MPI_Reduce(&t_algo_local,  &t_algo_max,  1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&t_total_local, &t_total_max, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+
+    // Print results only from rank 0
+    if (my_rank == 0) {
+        printf("\nBest Fitness: %f\n", best_fitness_snapshot);
+        printf("Best position: (%f, %f)\n", best_x_snapshot, best_y_snapshot);
+        printf("Rosenbrock minima is at: (1, 1) with a value of 0\n");
+        printf("Distance: (%f, %f)", 
+               best_x_snapshot - 1.0, 
+               best_y_snapshot - 1.0);
+        printf("\nExecution time (Total): %.6f s", t_total_max);
+        printf("\nExecution time (Algo): %.6f s", t_algo_max);
+    }
+
     MPI_Finalize();
     return 0;   
 }

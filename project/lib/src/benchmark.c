@@ -22,7 +22,7 @@ double rosenbrock(const Vector *pos) {
 
 // Sphere N-D
 double sphere(const Vector *pos) {
-    if (!pos || pos->data) return NAN;
+    if (!pos || !pos->data) return NAN;
 
     double sum = 0.0;
     for (int i = 0; i < pos->d; i++) {
@@ -32,6 +32,10 @@ double sphere(const Vector *pos) {
     return sum;
 } 
 
+/**
+ * Optional wrapping function that corrects the result based on whether
+ * Maximization or Minimazation is chosen (through OPTIMIZATION_MODE)
+ */
 double objective_eval(ObjectiveFn f, const Vector *pos) {
     if (!f) return NAN;
     const double raw_val = f(pos);

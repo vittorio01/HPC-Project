@@ -40,8 +40,6 @@ void printParameters(batAlgorithmParameters* parameters) {
     printf("\n");
 }
 
-
-
 void initResults(batAlgorithmResults** results, unsigned int vectorDim) {
     (*results)=malloc(sizeof(batAlgorithmResults));
     if ((*results)==NULL) return;
@@ -63,3 +61,7 @@ void printResults(batAlgorithmResults* results) {
     printf("Bat index: %d\n",results->bestIndex);
     printf("\n");
 } 
+
+double random_uniform(double min, double max) {
+    return min + ((double) rand() / (double) RAND_MAX)*(max-min);
+}
