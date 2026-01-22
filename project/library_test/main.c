@@ -32,9 +32,9 @@ int main(int argc, char** argv) {
     printf("Upper portion\n");
     printVector(vector,5,12);
 
-    printf("Testing random initialization funtion...\n");
-    initVectorRandom(vector,-10,10);
-    printVector(vector,0,10);
+    //printf("Testing random initialization funtion...\n");
+    //initVectorRandom(vector,-10,10);
+    //printVector(vector,0,10);
     printf("Testing vector copy function...\n");
     Vector* vector2=NULL;
     initVector(&vector2,12);
@@ -74,9 +74,9 @@ int main(int argc, char** argv) {
     printMatrix(matrix,0,5,0,5);
     printf("Lower right portion\n");
     printMatrix(matrix,5,12,5,12);
-    printf("Testing random initialization funtion...\n");
-    initMatrixRandom(matrix,-10,10);
-    printMatrix(matrix,0,10,0,10);
+    //printf("Testing random initialization funtion...\n");
+    //initMatrixRandom(matrix,-10,10);
+    //printMatrix(matrix,0,10,0,10);
     printf("Testing matrix copy function...\n");
     Matrix* matrix2=NULL;
     initMatrix(&matrix2,12,12);
@@ -116,8 +116,8 @@ int main(int argc, char** argv) {
     destroyVector(&vector2);
     destroyMatrix(&matrix);
     destroyMatrix(&matrix2);
-    printf("--- matrix-vector function tested \n");
-    printf("--- testing batAlgorithmParameters and batAlgorithmResults functions");
+    printf("--- matrix-vector function tested ---\n");
+    printf("--- testing batAlgorithmParameters and batAlgorithmResults functions ---\n");
     batAlgorithmParameters* parameters=NULL;
     batAlgorithmResults* results=NULL;
     initParameters(&parameters,3);
@@ -130,8 +130,23 @@ int main(int argc, char** argv) {
     printParameters(parameters);
     printResults(results);
     printf("Destroying structures...");
-    //destroyResults(&results);
-    //destroyParameters(&parameters);
-    printf("--- function tested --- ");
+    destroyResults(&results);
+    destroyParameters(&parameters);
+    printf("--- testing random generation functions ---\n");
+    ugSeed* r1=NULL;
+    ugSeed* r2=NULL; 
+    generateSeed(&r1,1);
+    generateSeed(&r2,2);
+    printf("generating random numbers... \n");
+    printf("R1: %f R2: %f\n",randomUniform(-100,100,r1),randomUniform(-100,100,r2));
+    printf("R1: %f R2: %f\n",randomUniform(-100,100,r1),randomUniform(-100,100,r2));
+    printf("R1: %f R2: %f\n",randomUniform(-100,100,r1),randomUniform(-100,100,r2));
+    printf("R1: %f R2: %f\n",randomUniform(-100,100,r1),randomUniform(-100,100,r2));
+
+    printf("Destroying structures...\n");
+    destroySeed(&r1);
+    destroySeed(&r2);
+
+    printf("--- function tested --- \n");
     return 0;
 }

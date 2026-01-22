@@ -7,7 +7,7 @@ libs-init:
 	mkdir -p $(LIBS_OUT)
 
 libs-compile: libs-init 
-	gcc -std=$(STD) -o $(LIBS_OUT)/tools.o -c $(LIBS_SRCS)/tools.c -I $(LIBS_INC)
+	gcc -std=$(STD) -o $(LIBS_OUT)/tools.o -c $(LIBS_SRCS)/tools.c -I $(LIBS_INC) $(shell gsl-config --cflags --libs)
 	gcc -std=$(STD) -o $(LIBS_OUT)/data.o -c $(LIBS_SRCS)/data.c -I $(LIBS_INC)
 	gcc -std=$(STD) -o $(LIBS_OUT)/benchmark.o -c $(LIBS_SRCS)/benchmark.c -I $(LIBS_INC)
 

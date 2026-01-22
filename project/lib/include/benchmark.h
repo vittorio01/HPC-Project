@@ -17,6 +17,9 @@ typedef double (*ObjectiveFn)(const Vector *pos);
 double rosenbrock(const Vector *pos);
 double sphere(const Vector *pos);
 
+double objective_eval(ObjectiveFn f, const Vector *pos);
+
+
 #endif
 
 

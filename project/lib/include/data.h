@@ -42,7 +42,7 @@ void initVectorData(Vector* vector,double value);
 //initVectorRandom() initialize all elements of the given vector with a given number. Requires:
 //vector -> an already initialized vector
 //min,max  -> range for the random values
-void initVectorRandom(Vector* vector, double min, double max);
+//void initVectorRandom(Vector* vector, double min, double max);
 
 //copySubVector copies the content between two vectors with custom coordinates/sizes. Requires:
 //source -> the pointer of the source vector
@@ -81,7 +81,7 @@ void initMatrixData(Matrix* matrix,double value);
 //initMatrixRandom() initializes the matrix with random numbers. Requires:
 //matrix -> pointer to the matrix structure
 //min,max -> range for the random values
-void initMatrixRandom(Matrix* matrix, double min, double max);
+//void initMatrixRandom(Matrix* matrix, double min, double max);
 
 //copySubMatrix() copies the content between two matrices with also different shapes/lengths. Requires:
 //source -> the pointer of the source matrix

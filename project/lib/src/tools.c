@@ -62,6 +62,23 @@ void printResults(batAlgorithmResults* results) {
     printf("\n");
 } 
 
-double random_uniform(double min, double max) {
-    return min + ((double) rand() / (double) RAND_MAX)*(max-min);
+double randomUniformRadius(double pos, double radius, ugSeed* r) {
+    return pos + radius * (2.0 * gsl_rng_uniform(r) - 1.0);
 }
+double randomUniform(double min, double max, ugSeed* r) {
+    return min + (max - min) * gsl_rng_uniform(r);
+}
+
+void generateSeed(ugSeed** r,unsigned int threadId) {
+    (*r)=gsl_rng_alloc(gsl_rng_mt19937);
+    unsigned long seed=(unsigned long)time(NULL)+threadId*1000u;
+    gsl_rng_set(*r, seed);
+}
+
+void destroySeed(ugSeed** r) {
+    gsl_rng_free(*r);
+    (*r)=NULL;
+}
+
+
+

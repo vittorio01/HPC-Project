@@ -148,8 +148,8 @@ int main(void)
     initResults(&results, 2);
 
     /* Override defaults to match your old constants */
-    parameters->bats = 40;
-    parameters->iterations = 5000;
+    parameters->bats = 1000;
+    parameters->iterations = 500;
 
     parameters->fMin = 0.0;
     parameters->fMax = 2.0;
@@ -163,7 +163,7 @@ int main(void)
     /* old code used random [-5,5]; we emulate that via initPos + radius */
     for (unsigned int d = 0; d < parameters->vectorDim; ++d)
         parameters->initPos->data[d] = 0.0;
-    parameters->initPosRadius = 5.0;
+    parameters->initPosRadius = 500;
 
     /* Run + time */
     gettimeofday(&start, NULL);

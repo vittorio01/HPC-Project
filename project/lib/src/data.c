@@ -30,12 +30,12 @@ void initVectorData(Vector* vector, double value) {
     }
 }
 
-void initVectorRandom(Vector* vector, double min, double max) {
+/*void initVectorRandom(Vector* vector, double min, double max) {
     if (vector==NULL) return;
     for (int i=0;i<vector->d;i++) {
         vector->data[i]=min + ((double) rand() / (double) RAND_MAX)*(max-min);
     }
-}
+}*/
 
 void destroyVector(Vector** vector) {
     if ((*vector)==NULL) return;
@@ -69,7 +69,7 @@ void initMatrixData(Matrix* matrix,double value) {
     }
 }
 
-void initMatrixRandom(Matrix* matrix,double min,double max) {
+/*void initMatrixRandom(Matrix* matrix,double min,double max) {
     if (matrix==NULL) return;
 
     srand(time(NULL));
@@ -78,7 +78,7 @@ void initMatrixRandom(Matrix* matrix,double min,double max) {
             matrix->data[i][j]=min + ((double) rand() / (double) RAND_MAX)*(max-min);
         }
     }
-}
+}*/
 
 void destroyMatrix(Matrix** matrix) {
     if ((*matrix)==NULL) return;

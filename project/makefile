@@ -16,6 +16,7 @@ PLACE=pack
 WALLTIME=0:01:00
 QUEUE=shortCPUQ
 MODULE=OpenMPI/4.1.6-GCC-13.2.0
+MODULE_GSL=GSL/2.7-GCC-12.3.0
 
 compile: libs-compile $(PRG)/main.c	
 	@echo "--- Generating PBS script ---"
@@ -29,19 +30,25 @@ compile: libs-compile $(PRG)/main.c
 	echo '#PBS -o $(LOG_FOLDER)/$(PRG).out' >> $(RUN)
 	echo 'cd $${PBS_O_WORKDIR}' >> $(RUN)
 	echo 'module load $(MODULE)' >> $(RUN)
+	echo 'module load $(MODULE_GSL)' >> $(RUN)
 	echo 'mpiexec -n $(PROCESSES) $(OUT_FOLDER)/$(PRG)' >> $(RUN)
 	chmod +x $(RUN)
 	mkdir -p  $(LOG_FOLDER) $(OUT_FOLDER) 
 	@echo "--- Compiling MPI program ---"
 	# module load mpich-3.2
-	mpicc -std=$(STD) -g -Wall -fopenmp -o $(OUT_FOLDER)/$(PRG) $(PRG)/main.c -lm -I$(LIBS_OUT) -I$(LOCAL_INC_FOLDER) $(shell find ./$(LOCAL_SRC_FOLDER) -name "*.c") $(LIBS_OUT)/*.o
+	mpicc -std=$(STD) -g -Wall -fopenmp -o $(OUT_FOLDER)/$(PRG) $(PRG)/main.c -lm -I$(LIBS_OUT) -I$(LOCAL_INC_FOLDER) $(shell find ./$(LOCAL_SRC_FOLDER) -name "*.c") $(LIBS_OUT)/*.o $(shell gsl-config --cflags --libs)   
 	@echo "--- Build complete ---"
 
 run: compile
 	@echo "--- Submitting job to cluster ---"
 	qsub $(RUN)
 	@echo "--- Job submitted ---"
-	
+
+run-local: compile 
+	@echo "--- Executing program in local ---"
+	mpiexec -n $(PROCESSES) $(OUT_FOLDER)/$(PRG)
+	@echo "--- End of execution ---"
+
 clean: libs-clean 
 	@echo "--- Cleaning up build files ---"
 	rm -rf $(BUILD_FOLDER)

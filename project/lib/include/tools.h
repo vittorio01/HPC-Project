@@ -3,6 +3,12 @@
 #ifndef __TOOLS_H__
 #define __TOOLS_H__
 
+#include <stdio.h> 
+#include <gsl/gsl_rng.h>
+#include <stdlib.h>
+#include <data.h>
+
+
 //default values for initial parameters used by the bat algorithms
 #define DEFAULT_POS         0      
 #define DEFAULT_FMIN        0
@@ -17,8 +23,6 @@
 #define DEFAULT_BATS_NUMBER  100
 #define DEFAULT_ITERATIONS   1000
 
-#include <stdlib.h>
-#include <data.h>
 
 /*  batAlgorithmParamters is a structure containing the initial parameters and the launch settings for the bat algorithms:
  *  initPos         ->      Initial reference position for spawning bats (the algorithm will geenrate bats around this position)
@@ -93,10 +97,38 @@ void destroyResults(batAlgorithmResults** results);
 */
 void printResults(batAlgorithmResults* results);
 
-/**
- * Uniform random number generation (Apparently not so uniform, so needs updating or alternative)
- */
-double random_uniform(double min, double max);
+
+/* 
+* ----- Random uniform functions ----- 
+*/
+typedef gsl_rng ugSeed;
+/* randomUniformRadius() generates a random number with an uniform distribution within the interval specified by center + radius:
+* pos -> center of the generation 
+* radius -> radius of the generation area 
+* r -> pointer to the uniformGenerator seed to be used
+*/
+double randomUniformRadius(double pos, double radius, ugSeed* r);
+
+
+/* randomUniform() generates a random number with an uniform distribution within the interval specified by [min,max]:
+* min,max -> generation interval 
+* r -> pointer to the ugSeed to be used
+*/
+
+double randomUniform(double min, double max, ugSeed* r);
+
+/* generateSeed() allocates a ugSeed for the random number generation. In multithreaded environments the seed should be associated with the thread Id in order to 
+* allow the threads to generate different numbers: 
+* r -> the address of the pointer of the ugSeed structure
+* threadId -> id of the current thread/process
+* 
+*/
+void generateSeed(ugSeed** r,unsigned int threadId);
+
+/* destroySeed() destroys the ugSeed structure: 
+* r -> address of the pointer of the ugSeed to be used 
+*/
+void destroySeed(ugSeed** r);
 
 
 #endif
