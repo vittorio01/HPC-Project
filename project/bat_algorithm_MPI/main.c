@@ -19,12 +19,12 @@
 #define LOUDNESS        1.0
 #define GAMMA           0.9
 #define ALPHA           0.9
-#define VECTOR_DIM       2
-#define INITPOSRADIUS   100
+#define VECTOR_DIM      2
+#define POS_RADIUS      100
 
 #define BATS            1000000
 #define ITERATIONS      10
-#define NLAUNCHS        1
+#define N_LAUNCHES      1
 
 // -- Bound check helper -- (This may also be avoided?)
 static void checkBounds(Vector* pos, double bound) {
@@ -280,7 +280,7 @@ int main(int argc, char** argv) {
     parameters->gamma = GAMMA;
     parameters->alpha = ALPHA;
     parameters->vectorDim = VECTOR_DIM;
-    parameters->initPosRadius = INITPOSRADIUS;
+    parameters->initPosRadius = POS_RADIUS;
     parameters->bats = BATS / mpiProc;  // Local bats per process 
     parameters->iterations = ITERATIONS;
     
@@ -299,7 +299,7 @@ int main(int argc, char** argv) {
     double start, end;
     double totalTime = 0;
     
-    for (unsigned int i = 0; i < NLAUNCHS; i++) {
+    for (unsigned int i = 0; i < N_LAUNCHES; i++) {
         MPI_Barrier(MPI_COMM_WORLD);
         start = MPI_Wtime();
         
@@ -325,7 +325,7 @@ int main(int argc, char** argv) {
     }
     
     if (mpiId == 0) {
-        printf("Average execution time: %f s\n", (double)(totalTime / (double)NLAUNCHS));
+        printf("Average execution time: %f s\n", (double)(totalTime / (double)N_LAUNCHES));
     }
     
     destroyResults(&results);
