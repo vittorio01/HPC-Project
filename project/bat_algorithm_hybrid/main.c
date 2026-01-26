@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
     
     unsigned int resultsMPIDim=0;
     int dim;
-    MPI_Pack_size(VECTORDIM,MPI_DOUBLE,MPI_COMM_WORLD,&dim);
+    MPI_Pack_size(VECTOR_DIM,MPI_DOUBLE,MPI_COMM_WORLD,&dim);
     resultsMPIDim+=dim;
     MPI_Pack_size(1,MPI_DOUBLE,MPI_COMM_WORLD,&dim);
     resultsMPIDim+=dim;
