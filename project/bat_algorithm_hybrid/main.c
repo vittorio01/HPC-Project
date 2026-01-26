@@ -288,20 +288,6 @@ int main(int argc, char** argv) {
     batAlgorithmResults* results=NULL;
     initResults(&results,2);
     
-<<<<<<< HEAD
-=======
-    unsigned int resultsMPIDim=0;
-    int dim;
-    MPI_Pack_size(VECTOR_DIM,MPI_DOUBLE,MPI_COMM_WORLD,&dim);
-    resultsMPIDim+=dim;
-    MPI_Pack_size(1,MPI_DOUBLE,MPI_COMM_WORLD,&dim);
-    resultsMPIDim+=dim;
-    MPI_Pack_size(1,MPI_UNSIGNED,MPI_COMM_WORLD,&dim);
-    resultsMPIDim+=dim;
-    void* mpiBuffer=NULL;
-    mpiBuffer=malloc(resultsMPIDim);
-
->>>>>>> 93caa8e0e3d42b4ca308828ca958311caad9d3d4
     double start,end;
     double totalTime=0;
     for (unsigned int i=0;i<NLAUNCHS;i++) {
