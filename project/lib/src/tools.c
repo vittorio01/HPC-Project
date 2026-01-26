@@ -71,7 +71,7 @@ double randomUniform(double min, double max, ugSeed* r) {
 
 void generateSeed(ugSeed** r,unsigned int threadId) {
     (*r)=gsl_rng_alloc(gsl_rng_mt19937);
-    unsigned long seed=(unsigned long)time(NULL)+threadId*1000u;
+    unsigned long seed=(unsigned long)clock()+threadId*1000u;
     gsl_rng_set(*r, seed);
 }
 
