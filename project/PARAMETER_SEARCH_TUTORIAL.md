@@ -223,6 +223,35 @@ Time:    0.012672s
 
 ## Tips & Tricks
 
+### Cluster Resource Management (MPI/HYBRID)
+
+**Important:** The cluster has a maximum of **60 CPU cores**. Use `--mpi_procs` to control resource allocation:
+
+```bash
+# MPI with 4 processes (default)
+python parameter_search.py -I MPI -G LOW --mpi_procs 4
+
+# MPI with 8 processes (more parallelism, more resources)
+python parameter_search.py -I MPI -G MEDIUM --mpi_procs 8
+
+# Maximum: 60 processes (uses all available cores)
+python parameter_search.py -I MPI -G HIGH --mpi_procs 60
+```
+
+**For HYBRID (MPI + OpenMP):**
+The script automatically calculates OpenMP threads: `OMP_NUM_THREADS = 60 / mpi_procs`
+
+```bash
+# 8 MPI procs × 7 threads = 56 CPUs used
+python parameter_search.py -I HYBRID -G MEDIUM --mpi_procs 8
+
+# 10 MPI procs × 6 threads = 60 CPUs (maximum)
+python parameter_search.py -I HYBRID -G HIGH --mpi_procs 10
+
+# 4 MPI procs × 15 threads = 60 CPUs (more threads per process)
+python parameter_search.py -I HYBRID -G HIGH --mpi_procs 4
+```
+
 ### 1. Start with LOW, then MEDIUM, then HIGH
 ```bash
 python parameter_search_new.py -I CPU -G LOW
@@ -251,14 +280,23 @@ python parameter_search_new.py -I CPU -G MEDIUM -O TIME --accuracy_level 0.5
 
 ### 5. Compare implementations
 ```bash
-python parameter_search_new.py -I CPU -G MEDIUM
-python parameter_search_new.py -I MPI -G MEDIUM
-python parameter_search_new.py -I HYBRID -G MEDIUM
+python parameter_search.py -I CPU -G MEDIUM
+python parameter_search.py -I MPI -G MEDIUM --mpi_procs 4
+python parameter_search.py -I HYBRID -G MEDIUM --mpi_procs 8
 ```
 
 ### 6. Increase timeout for slow configs
 ```bash
-python parameter_search_new.py -I CPU -G MEDIUM --max_exec_time 120
+python parameter_search.py -I CPU -G MEDIUM --max_exec_time 120
+```
+
+### 7. Check cluster job status while running
+
+From a second terminal on the cluster:
+```bash
+qstat                          # See all jobs in queue
+qstat -f <job_id>              # Details of specific job
+tail -f build/log/<job_id>.out # Stream output in real-time
 ```
 
 ## Common Issues
@@ -317,9 +355,16 @@ parser.add_argument("-G", "--granularity", type=str.upper,
 
 ## Performance Benchmarks
 
-On CPU (single core):
+**CPU (single core, local execution):**
 - LOW: ~0.5 seconds
 - MEDIUM: ~2-4 minutes (512 tests)
 - HIGH: ~5-10 minutes (256 tests, varies by parameters)
 
-On MPI/HYBRID: Submitted as PBS jobs to cluster, check job status with `qstat`.
+**MPI/HYBRID (cluster with PBS job submission):**
+Execution time depends on queue wait time + job runtime. Each job's runtime is similar to CPU, but parallelization doesn't improve single-parameter-set speed (each test runs independently).
+
+- LOW with 4 MPI procs: ~1-2 min (mostly queue wait + 25 × ~0.01s per test)
+- MEDIUM with 8 MPI procs: ~20-40 min queue + job execution
+- HIGH with 10 MPI procs + 6 threads: ~40-60 min total
+
+**Tip:** Use `-G LOW -I CPU` for quick testing locally, then scale to cluster with MPI/HYBRID once parameters are narrowed down.
