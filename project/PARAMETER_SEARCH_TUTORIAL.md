@@ -35,13 +35,13 @@ make PRG=bat_algorithm_hybrid compile # For HYBRID version
 
 ```bash
 # CPU with LOW granularity (quick test)
-python parameter_search_new.py -I CPU -G LOW -O ACCURACY
+python parameter_search.py -I CPU -G LOW -O ACCURACY
 
-# MPI with MEDIUM granularity (balanced search)
-python parameter_search_new.py -I MPI -G MEDIUM -O ACCURACY
+# MPI with MEDIUM granularity (4 processes, balanced search)
+python parameter_search.py -I MPI -G MEDIUM -O ACCURACY
 
-# HYBRID with HIGH granularity (comprehensive, ~5 min)
-python parameter_search_new.py -I HYBRID -G HIGH -O ACCURACY
+# HYBRID with HIGH granularity (8 MPI procs, ~5 min)
+python parameter_search.py -I HYBRID -G HIGH -O ACCURACY --mpi_procs 8
 ```
 
 ### Command-Line Arguments
@@ -53,22 +53,20 @@ python parameter_search_new.py -I HYBRID -G HIGH -O ACCURACY
 | `-O` / `--objective` | ACCURACY, TIME | ACCURACY | Optimize for fitness or execution time |
 | `--max_exec_time` | float (seconds) | 60 | Max execution time per test |
 | `--accuracy_level` | float | 0.5 | Minimum acceptable fitness (when using TIME objective) |
+| `--mpi_procs` | 1-60 | 4 | Number of MPI processes (cluster only) |
 
 ## Granularity Levels Explained
 
-### LOW Granularity (~25 tests, <1 sec)
+### LOW Granularity (~25 tests, <1 sec on CPU, varies on cluster)
 **Sweeps:** Iterations, Radius
 **Best for:** Quick validation, understanding basic parameter sensitivity
 
-Example output:
-```
-[1/25] Best fitness: 6.581871e-04
-[2/25] Best fitness: 6.581871e-04
-...
-[25/25] Best fitness: 2.56574e-07
+```bash
+python parameter_search.py -I CPU -G LOW           # Fast local test
+python parameter_search.py -I MPI -G LOW --mpi_procs 4   # Cluster with 4 processes
 ```
 
-### MEDIUM Granularity (~512 tests, ~4 min)
+### MEDIUM Granularity (~512 tests, ~4 min on CPU, ~20 min on cluster)
 **Sweeps:** Dimension, Alpha, Gamma, Radius, Bats, Iterations
 **Best for:** Practical tuning with reasonable time investment
 
@@ -80,7 +78,7 @@ Parameters:
 - Bats: 2 steps (100→100k)
 - Iterations: 2 steps (10→2000)
 
-### HIGH Granularity (~256 tests, <5 min)
+### HIGH Granularity (~256 tests, <5 min on CPU, variable on cluster)
 **Sweeps:** Bats, Radius, Dimension, Alpha, Gamma, Iterations
 **Best for:** Final optimization with more parameter variety
 

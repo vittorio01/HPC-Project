@@ -35,12 +35,18 @@ def parse_benchmark_output(output_str):
         }
     return None
 
-def create_pbs_script(job_name, cmd_args, log_dir):
+def create_pbs_script(job_name, cmd_args, log_dir, num_procs=1, is_hybrid=False):
     """Creates a PBS script for cluster submission."""
     # Assuming standard project structure
+    num_threads = 1
+    if is_hybrid:
+        # For HYBRID: distribute CPUs between MPI and OpenMP
+        # e.g., 4 MPI procs × 4 threads = 16 CPUs
+        num_threads = max(1, 60 // num_procs)
+    
     pbs_content = f"""#!/bin/bash
-#PBS -l select=1:ncpus=1:mem=2gb
-#PBS -l walltime=00:05:00
+#PBS -l select=1:ncpus={num_procs}:mem=2gb
+#PBS -l walltime=00:10:00
 #PBS -q shortCPUQ
 #PBS -o {log_dir}/{job_name}.out
 #PBS -e {log_dir}/{job_name}.err
@@ -49,6 +55,7 @@ cd {os.getcwd()}
 module load OpenMPI/4.1.5-GCC-12.3.0
 module load GSL/2.7-GCC-12.3.0
 
+export OMP_NUM_THREADS={num_threads}
 {cmd_args}
 """
     script_path = Path(log_dir) / f"{job_name}.sh"
@@ -64,8 +71,14 @@ def main():
     parser.add_argument("-G", "--granularity", type=str.upper, choices=['LOW', 'MEDIUM', 'HIGH'], default='MEDIUM', help='Either LOW, MEDIUM or HIGH')
     parser.add_argument("--accuracy_level", type=float, default=0.5, help='This selects the maximum possible fitness that can be achieved, when used in conjuction with TIME optimization')
     parser.add_argument("--max_exec_time", type=float, default=60, help='Maximum execution time in SECONDS that can be accepted when ACCURACY optimization is chosen')
+    parser.add_argument("--mpi_procs", type=int, default=4, help='Number of MPI processes (default 4, max 60)')
     args = parser.parse_args()
-
+    
+    # Validate MPI processes
+    if args.mpi_procs < 1 or args.mpi_procs > 60:
+        print(f"Error: mpi_procs must be between 1 and 60, got {args.mpi_procs}")
+        return
+    
     print(f"Chosen Implementation: {args.implementation}\n") 
     print(f"Chosen Objective: {args.objective}\n")
     if args.objective == 'TIME':
@@ -161,18 +174,21 @@ def main():
             # Run on cluster (MPI/HYBRID)
             # Create a unique job name
             job_id = f"job_{int(time.time()*1000)}"
-            cmd_str = "mpiexec -n 1 " + " ".join(cmd) # Placeholder for actual mpi args
-            pbs_file = create_pbs_script(job_id, cmd_str, log_dir)
+            is_hybrid = args.implementation == 'HYBRID'
+            
+            # Build mpiexec command with proper process count
+            mpi_cmd = f"mpiexec -n {args.mpi_procs} " + " ".join(cmd)
+            pbs_file = create_pbs_script(job_id, mpi_cmd, log_dir, num_procs=args.mpi_procs, is_hybrid=is_hybrid)
             
             # Submit
             try:
                 # Try qsub
-                print(f"   [Submitting PBS job: {job_id}]", end=" ", flush=True)
+                print(f"   [Submitting PBS job: {job_id} ({args.mpi_procs} procs)]", end=" ", flush=True)
                 sub = subprocess.run(["qsub", str(pbs_file)], capture_output=True, text=True, timeout=10)
                 if sub.returncode != 0:
                     # Fallback to local execution if qsub fails (e.g. running on non-login node)
-                    print(f"[Warn] qsub failed, running locally")
-                    res = subprocess.run(["mpiexec", "-n", "1"] + cmd, capture_output=True, text=True, timeout=args.max_exec_time + 10)
+                    print(f"[Warn] qsub failed, running locally with {args.mpi_procs} procs")
+                    res = subprocess.run(["mpiexec", "-n", str(args.mpi_procs)] + cmd, capture_output=True, text=True, timeout=args.max_exec_time + 10)
                     return parse_benchmark_output(res.stdout)
                 
                 # If submitted, wait for output file
@@ -200,9 +216,9 @@ def main():
                 return None
             except FileNotFoundError as e:
                 # Fallback to local mpiexec
-                print(f"   [qsub not available, trying local mpiexec]")
+                print(f"   [qsub not available, trying local mpiexec with {args.mpi_procs} procs]")
                 try:
-                    res = subprocess.run(["mpiexec", "-n", "1"] + cmd, capture_output=True, text=True, timeout=args.max_exec_time + 10)
+                    res = subprocess.run(["mpiexec", "-n", str(args.mpi_procs)] + cmd, capture_output=True, text=True, timeout=args.max_exec_time + 10)
                     return parse_benchmark_output(res.stdout)
                 except subprocess.TimeoutExpired:
                     print("   [Timeout]")
