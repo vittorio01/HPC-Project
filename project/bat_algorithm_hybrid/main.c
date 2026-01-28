@@ -276,7 +276,10 @@ int main(int argc, char** argv) {
     parameters->initPosRadius=INITPOSRADIUS;
     parameters->bats=BATS;
     parameters->iterations=ITERATIONS;
-   
+
+    // Parse CLI arguments (if present)
+    parseArguments(argc, argv, parameters);
+
     if (mpiId==0) {
         unsigned int batsPerProc=intCeil(parameters->bats,mpiProc,0);
         unsigned int threadsNum=intRequiredThreads(batsPerProc,BATS_PER_THREAD);
@@ -304,8 +307,13 @@ int main(int argc, char** argv) {
             printResults(results);
         }       
     }
-    if(mpiId==0) printf("Average execution time: %f\n",(double)(totalTime/(double )NLAUNCHS));
-
+    if(mpiId==0) {
+        double avgTime = (double)(totalTime/(double)NLAUNCHS);
+        printf("Average execution time: %f\n", avgTime);
+        
+        /* Print machine readable output */
+        printBenchmarkData(results, parameters, avgTime);
+    }
     destroyResults(&results);
     destroyParameters(&parameters);
     MPI_Finalize();

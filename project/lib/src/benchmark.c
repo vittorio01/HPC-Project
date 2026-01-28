@@ -47,3 +47,17 @@ double objective_eval(ObjectiveFn f, const Vector *pos) {
     #endif
 }
 
+
+void printBenchmarkData(batAlgorithmResults* results, batAlgorithmParameters* parameters, double elapsed) {
+    if (results == NULL || parameters == NULL) return;
+    /*
+        Format: TAG, Fitness, Time, Bats, Iterations, Dimensions, Processes
+    */
+    printf("BENCHMARK_DATA, %.12f, %.12f, %u, %u, %u\n",
+        results->bestFitness,
+        elapsed,
+        parameters->bats,
+        parameters->iterations,
+        parameters->vectorDim);
+}
+

@@ -1,6 +1,7 @@
 #ifndef __BENCHMARK_H__
 #define __BENCHMARK_H__
 
+#include "tools.h"
 #include "data.h"
 
 // Toggle this definition to switch modes
@@ -17,7 +18,15 @@ typedef double (*ObjectiveFn)(const Vector *pos);
 double rosenbrock(const Vector *pos);
 double sphere(const Vector *pos);
 
+/* Wrapper*/
 double objective_eval(ObjectiveFn f, const Vector *pos);
+
+/* printBenchmarkData() prints a CSV-formatted line for valid parsing by scripts:
+ * results    -> pointer to results structure
+ * parameters -> pointer to parameters structure
+ * elapsed    -> execution time in seconds
+ */
+void printBenchmarkData(batAlgorithmResults* results, batAlgorithmParameters* parameters, double elapsed);
 
 
 #endif

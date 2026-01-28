@@ -70,9 +70,31 @@ if __name__ == "__main__":
     }
 
     # -- LOW GRANULARITY HEURISTIC -- #
+    if args.granularity == 'LOW':
+        pass
+
 
     # -- MEDIUM GRANULARITY HEURISTIC -- #
+    if args.granularity == 'MEDIUM':
+        if args.implementation == 'CPU':
+            pass
+
+        if args.implementation == 'MPI':
+            # Start sweeping the optimization space
+            #    - Write pbs with new parameters
+            #    - Run jobs on cluster
+            #    - Verify that the job has run and read the results (how?)
+            #    - proceed to next iteration
+        
+            # Return best parameter listing
+            pass
+
+        if args.implementation == 'HYBRID':
+            pass
+
 
     # -- HIGH GRANULARITY HEURISTIC -- #
+    if args.granularity == 'HIGH':
+        pass
 
     # -- REPORT OBTAINED BEST PARAMETERS -- #

@@ -81,6 +81,11 @@ void destroyParameters(batAlgorithmParameters** parameters);
 */
 void printParameters(batAlgorithmParameters* parameters);
 
+/* parseArguments() parses command line arguments and overrides default parameters:
+ * argc, argv -> arguments passed to main
+ * params     -> pointer to the parameters structure to modify
+ */
+void parseArguments(int argc, char ** argv, batAlgorithmParameters* parameters);
 /* initResultStructure() allocates a batAlgorithmResults structure:
  * results   ->     the address of a batAlgorithmResults structure that points to NULL
  * vectorDim ->     the dimension of the problem

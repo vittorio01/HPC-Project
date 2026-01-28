@@ -5,6 +5,7 @@
 #include <time.h>
 
 #include "tools.h"   // <-- brings batAlgorithmParameters / batAlgorithmResults + includes data.h
+#include "benchmark.h"
 
 /* Sphere objective: f(x) = sum x_i^2 */
 static double objective(const double *x, unsigned int dim)
@@ -134,7 +135,7 @@ static void batAlgorithmCPU(batAlgorithmParameters *parameters, batAlgorithmResu
     destroyVector(&best);
 }
 
-int main(void)
+int main(int argc, char** argv)
 {
     struct timeval start, end;
 
@@ -165,6 +166,9 @@ int main(void)
         parameters->initPos->data[d] = 0.0;
     parameters->initPosRadius = 500;
 
+    /* Parse CLI arguments (overrides the defaults)*/
+    parseArguments(argc, argv, parameters);
+
     /* Run + time */
     gettimeofday(&start, NULL);
     batAlgorithmCPU(parameters, results);
@@ -177,6 +181,9 @@ int main(void)
 
     /* Print using the dedicated library function (required) */
     printResults(results);
+
+    /* Print machine readable output for parameter search */
+    printBenchmarkData(results, parameters, elapsed);
 
     /* cleanup (required) */
     destroyResults(&results);

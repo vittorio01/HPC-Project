@@ -21,7 +21,6 @@
 #define ALPHA           0.9
 #define VECTOR_DIM      2
 #define POS_RADIUS      100
-
 #define BATS            1000000
 #define ITERATIONS      10
 #define N_LAUNCHES      1
@@ -283,6 +282,9 @@ int main(int argc, char** argv) {
     parameters->initPosRadius = POS_RADIUS;
     parameters->bats = BATS / mpiProc;  // Local bats per process 
     parameters->iterations = ITERATIONS;
+
+    // Parse CLI Arguments (if present)
+    parseArguments(argc, argv, parameters);
     
     // Calculate actual total bats (accounts for integer division)
     unsigned int actualTotalBats = parameters->bats * mpiProc;
@@ -325,7 +327,14 @@ int main(int argc, char** argv) {
     }
     
     if (mpiId == 0) {
-        printf("Average execution time: %f s\n", (double)(totalTime / (double)N_LAUNCHES));
+        double avgTime = (double) (totalTime / (double) N_LAUNCHES);
+        printf("Average execution time: %f s\n", avgTime);
+
+        /* Print machine readable output for parameter search*/
+        unsigned int originalBats = parameters->bats;
+        parameters->bats = actualTotalBats;
+        printBenchmarkData(results, parameters, avgTime);
+        parameters->bats = originalBats;
     }
     
     destroyResults(&results);

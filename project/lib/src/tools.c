@@ -1,4 +1,5 @@
 #include "tools.h"
+#include <string.h>
 
 void initParameters(batAlgorithmParameters** parameters, unsigned int vectorDim) {
     (*parameters)=malloc(sizeof(batAlgorithmParameters));
@@ -61,6 +62,49 @@ void printResults(batAlgorithmResults* results) {
     printf("Bat index: %d\n",results->bestIndex);
     printf("\n");
 } 
+
+void parseArguments(int argc, char** argv, batAlgorithmParameters* parameters) {
+    if (parameters == NULL) return;
+
+    for (int i = 1; i < argc; i++) {
+        // Integer parameters
+        if (strcmp(argv[i], "--bats") == 0 && i + 1 < argc) {
+            parameters->bats = atoi(argv[++i]);
+        } 
+        // the check of i+1 < argc is to prevent the user from specifying the flag
+        // without the following input of a value
+        else if (strcmp(argv[i], "--iterations") == 0 && i + 1 < argc) {
+            parameters->iterations = atoi(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--dim") == 0 && i + 1 < argc) {
+            // Note: changing dimension might require re-allocating initPos vector
+            parameters->vectorDim = atoi(argv[++i]); 
+            // Re-allocation logic would theoretically go here if dim changes
+        }
+        // Double parameters
+        else if (strcmp(argv[i], "--alpha") == 0 && i + 1 < argc) {
+            parameters->alpha = atof(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--gamma") == 0 && i + 1 < argc) {
+            parameters->gamma = atof(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--pulse") == 0 && i + 1 < argc) {
+            parameters->initPulse = atof(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--loudness") == 0 && i + 1 < argc) {
+            parameters->initLoudness = atof(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--fmin") == 0 && i + 1 < argc) {
+            parameters->fMin = atof(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--fmax") == 0 && i + 1 < argc) {
+            parameters->fMax = atof(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--radius") == 0 && i + 1 < argc) {
+            parameters->initPosRadius = atof(argv[++i]);
+        }
+    }
+}
 
 double randomUniformRadius(double pos, double radius, ugSeed* r) {
     return pos + radius * (2.0 * gsl_rng_uniform(r) - 1.0);
