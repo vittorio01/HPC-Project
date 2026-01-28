@@ -167,29 +167,49 @@ def main():
             # Submit
             try:
                 # Try qsub
-                sub = subprocess.run(["qsub", str(pbs_file)], capture_output=True, text=True)
+                print(f"   [Submitting PBS job: {job_id}]", end=" ", flush=True)
+                sub = subprocess.run(["qsub", str(pbs_file)], capture_output=True, text=True, timeout=10)
                 if sub.returncode != 0:
                     # Fallback to local execution if qsub fails (e.g. running on non-login node)
-                    print(f" [Warn] qsub failed, running locally: {' '.join(cmd)}")
-                    res = subprocess.run(["mpiexec", "-n", "1"] + cmd, capture_output=True, text=True)
+                    print(f"[Warn] qsub failed, running locally")
+                    res = subprocess.run(["mpiexec", "-n", "1"] + cmd, capture_output=True, text=True, timeout=args.max_exec_time + 10)
                     return parse_benchmark_output(res.stdout)
                 
                 # If submitted, wait for output file
                 out_file = log_dir / f"{job_id}.out"
-                max_wait = args.max_exec_time + 30
+                max_wait = args.max_exec_time + 60
                 start_wait = time.time()
-                while time.time() - start_wait < max_wait:
+                elapsed = 0
+                print(f"[waiting up to {max_wait}s]", flush=True)
+                
+                while elapsed < max_wait:
                     if out_file.exists():
-                        time.sleep(1) # Flush
+                        time.sleep(0.5) # Flush
                         content = out_file.read_text()
-                        return parse_benchmark_output(content)
-                    time.sleep(1)
-            except FileNotFoundError:
-                 # Fallback
-                res = subprocess.run(["mpiexec", "-n", "1"] + cmd, capture_output=True, text=True)
-                return parse_benchmark_output(res.stdout)
-            
-            return None
+                        if content.strip():  # Only parse non-empty output
+                            return parse_benchmark_output(content)
+                    elapsed = time.time() - start_wait
+                    time.sleep(0.5)
+                
+                # Timeout waiting for output
+                print(f"   [PBS output timeout after {max_wait}s]")
+                return None
+                
+            except subprocess.TimeoutExpired as e:
+                print(f"   [Error: {e}]")
+                return None
+            except FileNotFoundError as e:
+                # Fallback to local mpiexec
+                print(f"   [qsub not available, trying local mpiexec]")
+                try:
+                    res = subprocess.run(["mpiexec", "-n", "1"] + cmd, capture_output=True, text=True, timeout=args.max_exec_time + 10)
+                    return parse_benchmark_output(res.stdout)
+                except subprocess.TimeoutExpired:
+                    print("   [Timeout]")
+                    return None
+            except Exception as e:
+                print(f"   [Error: {type(e).__name__}: {e}]")
+                return None
 
 
     def update_best(res, params):
