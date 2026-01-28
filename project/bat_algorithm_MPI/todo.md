@@ -25,3 +25,10 @@
     (MPI, CPU or HYBRID) and on objective (ACCURACY, TIME). There are also many other options which can and should
     be set. You can view all options by doing `python sweep_parameters.py -h` or `--help`. If you have any doubts just
     tell me. Also I did some tests and for now the results makes sense, but there may be some errors, so let me know.
+
+    Start by loading MPI / OPENMP and GSL.
+    Also start by building your desired software first (cpu, mpi or hybrid), via normal make command.
+    In order to use the script you need to first activate the python environment. First of all load the latest python module:
+    `module load Python/3.11.3-GCCcore-12.3.0`. Then install and upgrade pip with:
+    `python -m pip install --upgrade pip` followed by `pip install --upgrade pip`. We then need to install the required lib:
+    `pip install numpy`.

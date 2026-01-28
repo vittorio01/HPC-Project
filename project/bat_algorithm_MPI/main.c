@@ -5,6 +5,7 @@
 #include <benchmark.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <mpi.h>
 #include <sys/time.h>
@@ -13,7 +14,7 @@
 #define M_PI 3.14159265358979323846
 
 // -- Bat Algorithm Parameters --
-#define FMAX            100.0
+#define FMAX            2.0
 #define FMIN            0.0
 #define PULSE           0.05
 #define LOUDNESS        1.0
@@ -262,12 +263,21 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &mpiProc);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpiId);
     
-    // Initialize parameters using library structures
+    // Parse CLI arguments early to get dimension before allocation
+    int dim = VECTOR_DIM; // default
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--dim") == 0 && i + 1 < argc) {
+            dim = atoi(argv[++i]);
+            break;
+        }
+    }
+    
+    // Initialize parameters using library structures with proper dimension
     batAlgorithmParameters* parameters = NULL;
-    initParameters(&parameters, VECTOR_DIM);
+    initParameters(&parameters, dim);
     
     // Set initial position
-    for (unsigned int i = 0; i < VECTOR_DIM; i++) {
+    for (unsigned int i = 0; i < dim; i++) {
         parameters->initPos->data[i] = 0.0;
     }
     

@@ -3,6 +3,7 @@
 #include <benchmark.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <omp.h>
 #include <mpi.h>
@@ -261,9 +262,18 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD,&mpiProc);
     MPI_Comm_rank(MPI_COMM_WORLD,&mpiId);
   
+    // Parse CLI arguments early to get dimension before allocation
+    int dim = 2; // default
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--dim") == 0 && i + 1 < argc) {
+            dim = atoi(argv[++i]);
+            break;
+        }
+    }
+    
     batAlgorithmParameters* parameters=NULL;
-    initParameters(&parameters,2);
-    for (unsigned int i=0;i<2;i++) {
+    initParameters(&parameters,dim);
+    for (unsigned int i=0;i<dim;i++) {
         parameters->initPos->data[i]=30;
     }
     parameters->fMin=FMIN;
@@ -272,7 +282,7 @@ int main(int argc, char** argv) {
     parameters->initLoudness=LOUDNESS;
     parameters->gamma=GAMMA;
     parameters->alpha=ALPHA;
-    parameters->vectorDim=2;
+    parameters->vectorDim=dim;
     parameters->initPosRadius=INITPOSRADIUS;
     parameters->bats=BATS;
     parameters->iterations=ITERATIONS;

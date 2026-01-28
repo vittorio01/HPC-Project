@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <sys/time.h>
 #include <time.h>
@@ -141,12 +142,21 @@ int main(int argc, char** argv)
 
     srand((unsigned)time(NULL));
 
-    /* Allocate + init the official IO structs */
+    /* Parse CLI arguments early to get dimension before allocation */
+    int dim = 2; // default
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--dim") == 0 && i + 1 < argc) {
+            dim = atoi(argv[++i]);
+            break;
+        }
+    }
+
+    /* Allocate + init the official IO structs with proper dimension */
     batAlgorithmParameters *parameters = NULL;
     batAlgorithmResults *results = NULL;
 
-    initParameters(&parameters, 2);
-    initResults(&results, 2);
+    initParameters(&parameters, dim);
+    initResults(&results, dim);
 
     /* Override defaults to match your old constants */
     parameters->bats = 1000;

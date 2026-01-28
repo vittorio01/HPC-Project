@@ -11,8 +11,8 @@
 
 //default values for initial parameters used by the bat algorithms
 #define DEFAULT_POS         0      
-#define DEFAULT_FMIN        0
-#define DEFAULT_FMAX        100
+#define DEFAULT_FMIN        0.0
+#define DEFAULT_FMAX        2.0
 #define DEFAULT_PULSE       0.2
 #define DEFAULT_LOUDNESS    1.5
 #define DEFAULT_GAMMA       0.9
