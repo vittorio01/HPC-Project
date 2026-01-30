@@ -22,8 +22,8 @@
 #define ALPHA           0.9
 #define VECTOR_DIM      2
 #define POS_RADIUS      100
-#define BATS            1000000
-#define ITERATIONS      10
+#define BATS            100000
+#define ITERATIONS      100
 #define N_LAUNCHES      1
 
 // -- Bound check helper -- (This may also be avoided?)
@@ -294,8 +294,9 @@ int main(int argc, char** argv) {
     parameters->iterations = ITERATIONS;
 
     // Parse CLI Arguments (if present)
-    parseArguments(argc, argv, parameters);
-    
+    ObjectiveFn function=NULL; 
+    parseArguments(argc, argv, parameters,&function);
+
     // Calculate actual total bats (accounts for integer division)
     unsigned int actualTotalBats = parameters->bats * mpiProc;
     
@@ -315,7 +316,7 @@ int main(int argc, char** argv) {
         MPI_Barrier(MPI_COMM_WORLD);
         start = MPI_Wtime();
         
-        batAlgorithmMPI(parameters, results, rosenbrock, mpiId, mpiProc, actualTotalBats);
+        batAlgorithmMPI(parameters, results, function, mpiId, mpiProc, actualTotalBats);
         
         MPI_Barrier(MPI_COMM_WORLD);
         end = MPI_Wtime();

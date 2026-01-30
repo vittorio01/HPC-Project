@@ -18,9 +18,4 @@ unsigned int intCeil(unsigned int elements, unsigned int n, unsigned id) {
     return nEnd-nStart;
 }
 
-unsigned int intRequiredThreads(unsigned int elements, unsigned int elementsPerThread) {
-    unsigned int threadsNumber=elements/elementsPerThread; 
-    if (elements%elementsPerThread>0) threadsNumber++;
-    return threadsNumber;
-}
 

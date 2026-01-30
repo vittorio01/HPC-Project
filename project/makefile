@@ -18,6 +18,18 @@ QUEUE=shortCPUQ
 MODULE=OpenMPI/4.1.5-GCC-12.3.0
 MODULE_GSL=GSL/2.7-GCC-12.3.0
 
+BATS = 1000
+ITERATIONS = 50 
+DIM = 2 
+ALPHA = 0.8 
+GAMMA = 0.895 
+PULSE = 0.1 
+LOUDNESS = 1.0 
+FMIN = 0.0 
+FMAX = 1.0 
+RADIUS = 100.0
+FUNCTION = sphere
+
 compile: libs-compile $(PRG)/main.c	
 	@echo "--- Generating PBS script ---"
 	rm -f $(RUN)
@@ -31,7 +43,7 @@ compile: libs-compile $(PRG)/main.c
 	echo 'cd $${PBS_O_WORKDIR}' >> $(RUN)
 	echo 'module load $(MODULE)' >> $(RUN)
 	echo 'module load $(MODULE_GSL)' >> $(RUN)
-	echo 'mpiexec -n $(PROCESSES) $(OUT_FOLDER)/$(PRG)' >> $(RUN)
+	echo 'mpiexec -n $(PROCESSES) $(OUT_FOLDER)/$(PRG) --bats $(BATS) --iterations $(ITERATIONS) --dim $(DIM) --alpha $(ALPHA) --gamma $(PULSE) --loudness $(LOUDNESS) --fmin $(FMIN) --fmax $(FMAX) --radius $(RADIUS) --function $(FUNCTION)' >> $(RUN)
 	chmod +x $(RUN)
 	mkdir -p  $(LOG_FOLDER) $(OUT_FOLDER) 
 	@echo "--- Compiling MPI program ---"
@@ -46,7 +58,7 @@ run: compile
 
 run-local: compile 
 	@echo "--- Executing program in local ---"
-	mpiexec -n $(PROCESSES) $(OUT_FOLDER)/$(PRG)
+	mpiexec -n $(PROCESSES) $(OUT_FOLDER)/$(PRG) --bats $(BATS) --iterations $(ITERATIONS) --dim $(DIM) --alpha $(ALPHA) --gamma $(PULSE) --loudness $(LOUDNESS) --fmin $(FMIN) --fmax $(FMAX) --radius $(RADIUS) --function $(FUNCTION)
 	@echo "--- End of execution ---"
 
 clean: libs-clean 

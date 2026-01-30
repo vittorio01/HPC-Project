@@ -7,21 +7,22 @@
 #include <gsl/gsl_rng.h>
 #include <stdlib.h>
 #include <data.h>
-
+#include <benchmark.h>
+#include <string.h>
 
 //default values for initial parameters used by the bat algorithms
 #define DEFAULT_POS         0      
 #define DEFAULT_FMIN        0.0
-#define DEFAULT_FMAX        2.0
-#define DEFAULT_PULSE       0.2
-#define DEFAULT_LOUDNESS    1.5
-#define DEFAULT_GAMMA       0.9
-#define DEFAULT_ALPHA       0.9
+#define DEFAULT_FMAX        1.0
+#define DEFAULT_PULSE       0.1
+#define DEFAULT_LOUDNESS    1.0
+#define DEFAULT_GAMMA       0.895
+#define DEFAULT_ALPHA       0.8
 
 //default values for bat spawning and iterations 
-#define DEFAULT_POS_RADIUS   30
-#define DEFAULT_BATS_NUMBER  100
-#define DEFAULT_ITERATIONS   1000
+#define DEFAULT_POS_RADIUS   100
+#define DEFAULT_BATS_NUMBER  1000
+#define DEFAULT_ITERATIONS   50
 
 
 /*  batAlgorithmParamters is a structure containing the initial parameters and the launch settings for the bat algorithms:
@@ -85,7 +86,7 @@ void printParameters(batAlgorithmParameters* parameters);
  * argc, argv -> arguments passed to main
  * params     -> pointer to the parameters structure to modify
  */
-void parseArguments(int argc, char ** argv, batAlgorithmParameters* parameters);
+void parseArguments(int argc, char ** argv, batAlgorithmParameters* parameters, ObjectiveFn* function);
 /* initResultStructure() allocates a batAlgorithmResults structure:
  * results   ->     the address of a batAlgorithmResults structure that points to NULL
  * vectorDim ->     the dimension of the problem

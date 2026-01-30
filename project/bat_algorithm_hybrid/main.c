@@ -13,20 +13,7 @@
 
 #define M_PI 3.14159265358979323846
 
-#define FMAX            2.0
-#define FMIN            0
-#define PULSE           0.5
-#define LOUDNESS        1.0
-#define GAMMA           0.9
-#define ALPHA           0.9
-#define VECTORDIM       2
-#define INITPOSRADIUS   500
-
-#define BATS                        10000
-#define ITERATIONS                  50
 #define NLAUNCHS                    10
-
-#define BATS_PER_THREAD             100
 
 /* ------ openMP implemetation of bat algorithm ------*/
 /*
@@ -57,7 +44,7 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
     
     //The number of threads to launch is obtained by dividing the number of bats to process by the number of target bats per thread. 
     //The result is then adjusted in case the divisio generates a remaindes (ceiling division).
-    unsigned int threadsNum=intRequiredThreads(batsToProcess,BATS_PER_THREAD);
+    unsigned int threadsNum=omp_get_max_threads();
     #pragma omp parallel num_threads(threadsNum) 
     {
         unsigned int threadId=omp_get_thread_num();
@@ -215,7 +202,7 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
  * The best results are then sent to process 0, which return the function with valid values in the result structure.
  */
 
-void batAlgorithmMPI3D(batAlgorithmParameters* parameters, batAlgorithmResults* results, ObjectiveFn f,unsigned int mpiId, unsigned int mpiProc) {
+void batAlgorithmMPI(batAlgorithmParameters* parameters, batAlgorithmResults* results, ObjectiveFn f,unsigned int mpiId, unsigned int mpiProc) {
     
     //The number of bats per OMP thread are obtained by ceiling.
     unsigned int localBats=intCeil(parameters->bats,mpiProc,mpiId);
@@ -274,27 +261,18 @@ int main(int argc, char** argv) {
     batAlgorithmParameters* parameters=NULL;
     initParameters(&parameters,dim);
     for (unsigned int i=0;i<dim;i++) {
-        parameters->initPos->data[i]=30;
+        parameters->initPos->data[i]=0.0;
     }
-    parameters->fMin=FMIN;
-    parameters->fMax=FMAX;
-    parameters->initPulse=PULSE;
-    parameters->initLoudness=LOUDNESS;
-    parameters->gamma=GAMMA;
-    parameters->alpha=ALPHA;
-    parameters->vectorDim=dim;
-    parameters->initPosRadius=INITPOSRADIUS;
-    parameters->bats=BATS;
-    parameters->iterations=ITERATIONS;
-
-    // Parse CLI arguments (if present)
-    parseArguments(argc, argv, parameters);
+        // Parse CLI arguments (if present)
+    ObjectiveFn function=NULL; 
+    parseArguments(argc, argv, parameters,&function);
+        
 
     if (mpiId==0) {
         unsigned int batsPerProc=intCeil(parameters->bats,mpiProc,0);
-        unsigned int threadsNum=intRequiredThreads(batsPerProc,BATS_PER_THREAD);
+        unsigned int batsPerThread=intCeil(batsPerProc,omp_get_max_threads(),0);
 
-        printf("Bat algorithm launch with MPI processes=%d and openMP processes=%d\n",mpiProc,threadsNum);
+        printf("Bat algorithm launch with MPI processes=%d (max %d bats per process) and openMP threads=%d (max %d bats per thread)\n",mpiProc,batsPerProc,omp_get_max_threads(),batsPerThread);
         printParameters(parameters);
     }
 
@@ -308,7 +286,7 @@ int main(int argc, char** argv) {
         
         start=MPI_Wtime();
         
-        batAlgorithmMPI3D(parameters,results,rosenbrock,mpiId,mpiProc);
+        batAlgorithmMPI(parameters,results,function,mpiId,mpiProc);
         
         end=MPI_Wtime();
         totalTime+=end-start;

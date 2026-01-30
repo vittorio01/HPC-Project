@@ -1,5 +1,4 @@
 #include "tools.h"
-#include <string.h>
 
 void initParameters(batAlgorithmParameters** parameters, unsigned int vectorDim) {
     (*parameters)=malloc(sizeof(batAlgorithmParameters));
@@ -63,7 +62,7 @@ void printResults(batAlgorithmResults* results) {
     printf("\n");
 } 
 
-void parseArguments(int argc, char** argv, batAlgorithmParameters* parameters) {
+void parseArguments(int argc, char** argv, batAlgorithmParameters* parameters, ObjectiveFn* function) {
     if (parameters == NULL) return;
 
     for (int i = 1; i < argc; i++) {
@@ -102,6 +101,15 @@ void parseArguments(int argc, char** argv, batAlgorithmParameters* parameters) {
         }
         else if (strcmp(argv[i], "--radius") == 0 && i + 1 < argc) {
             parameters->initPosRadius = atof(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--function") == 0 && i + 1 < argc) {
+            i++;
+            if (strcmp(argv[i], "rosenbrock") == 0) {
+                *(function)=rosenbrock;
+            } 
+            else {
+                *(function)=sphere;
+            }
         }
     }
 }

@@ -1,8 +1,5 @@
 #include "benchmark.h"
-
-#include <math.h>
-#include <stdlib.h>
-
+#include "tools.h"
 // Rosenbrock N-D
 // sum_{i=0..d-2} [(1-x_i)^2 + 100(x_{i+1}-x_i^2)^2]
 double rosenbrock(const Vector *pos) {
@@ -60,4 +57,3 @@ void printBenchmarkData(batAlgorithmResults* results, batAlgorithmParameters* pa
         parameters->iterations,
         parameters->vectorDim);
 }
-

@@ -26,7 +26,7 @@ static double rand_double(void)
  * - reads everything from parameters
  * - writes everything into results
  */
-static void batAlgorithmCPU(batAlgorithmParameters *parameters, batAlgorithmResults *results)
+static void batAlgorithmCPU(batAlgorithmParameters *parameters, batAlgorithmResults *results, ObjectiveFn function)
 {
     const unsigned int bats = parameters->bats;
     const unsigned int dim  = parameters->vectorDim;
@@ -177,11 +177,12 @@ int main(int argc, char** argv)
     parameters->initPosRadius = 500;
 
     /* Parse CLI arguments (overrides the defaults)*/
-    parseArguments(argc, argv, parameters);
-
+    ObjectiveFn function=NULL; 
+    parseArguments(argc, argv, parameters,&function);
+     
     /* Run + time */
     gettimeofday(&start, NULL);
-    batAlgorithmCPU(parameters, results);
+    batAlgorithmCPU(parameters, results, function);
     gettimeofday(&end, NULL);
 
     double elapsed = (double)(end.tv_sec - start.tv_sec) +

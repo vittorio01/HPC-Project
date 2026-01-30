@@ -27,11 +27,4 @@ int intMin(int a,int b);
  */
 unsigned int intCeil(unsigned int elements, unsigned int n, unsigned id);
 
-/* intRequiredThreadsl() finds how many threads are necessary in base of the number of elements and the elements per thread:
- * elements             -> numer of elements to divide 
- * elementsPErThread    -> trget number of elements per thread 
- */
-
-unsigned int intRequiredThreads(unsigned int elements, unsigned int elementsPerThread);
-
 #endif 
