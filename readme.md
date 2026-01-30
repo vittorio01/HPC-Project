@@ -1,10 +1,12 @@
 # HPC Project repository 
-This repository will be used for the source code of our High Performance Computing workgroup (exercises and final project). 
+This repository will be used for the source code of two parallelized [https://www.researchgate.net/publication/45913690_A_New_Metaheuristic_Bat-Inspired_Algorithm](Bat algorithm) designed by Xin-She Yang. 
+In particular there are three versions available: 
+- "bat_algorithm_cpu", the single process version of the algorithm used as reference for the parallel appliations. 
+- "bat_algorithm_MPI", the MPI multi-process version of the algorithm. 
+- "bat_algorithm_hybrid", the multi-thread version parallelized both with MPI and openMP. 
 
 ## Environment setup
-This repository contains two folders:
-- `project` contains the source code for the final project.
-- `exercises` contains more subfolders for some tests and exercises.
+This repository contains the implementation of parallelized versions of the :
 
 ### How to write and compile an exercise
 
