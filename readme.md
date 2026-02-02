@@ -72,7 +72,7 @@ More options can be specified to the makefile:
 | `FMIN` | Float | 0.0 | Minimum frequency of the bats |
 | `FMAX` | Float | 1.0 | maximum frequency of the bats |
 | `RADIUS` | Float | 100.0 | Spawning radius of the bats (the initial position of each bat is defined by a center `[0,...,0]` and a custom radius) |
-| `FUNCTION` | `rosenbrock`/`shpere` | `shpere` | the fitness funtion to use (the options can be `rosenbrock` or `sphere`) |
+| `FUNCTION` | `rosenbrock`/`shpere`/ `ackley`/`levy`/`grienwank`| `shpere` | the fitness funtion to use (the options can be `rosenbrock` or `sphere`) |
 
 There are also options relative for running the algorithm in the cluster: 
 | Variable | Options |  Default | Description |

@@ -1,4 +1,4 @@
-PRG = hello_world
+PRG = bat_algorithm_cpu
 
 STD = gnu11
 BUILD_FOLDER = build
@@ -48,7 +48,7 @@ compile: libs-compile $(PRG)/main.c
 	mkdir -p  $(LOG_FOLDER) $(OUT_FOLDER) 
 	@echo "--- Compiling MPI program ---"
 	# module load mpich-3.2
-	mpicc -std=$(STD) -g -Wall -fopenmp -o $(OUT_FOLDER)/$(PRG) $(PRG)/main.c -lm -I$(LIBS_OUT) -I$(LOCAL_INC_FOLDER) $(shell find ./$(LOCAL_SRC_FOLDER) -name "*.c") $(LIBS_OUT)/*.o $(shell gsl-config --cflags --libs)   
+	mpicc -std=$(STD) -g -Werror -fopenmp -o $(OUT_FOLDER)/$(PRG) $(PRG)/main.c -lm -I$(LIBS_OUT) -I$(LOCAL_INC_FOLDER) $(shell find ./$(LOCAL_SRC_FOLDER) -name "*.c") $(LIBS_OUT)/*.o $(shell gsl-config --cflags --libs)   
 	@echo "--- Build complete ---"
 
 run: compile

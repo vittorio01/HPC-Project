@@ -107,6 +107,15 @@ void parseArguments(int argc, char** argv, batAlgorithmParameters* parameters, O
             if (strcmp(argv[i], "rosenbrock") == 0) {
                 *(function)=rosenbrock;
             } 
+            else if(strcmp(argv[i], "ackley") == 0) {
+                *(function)=ackley;
+            }
+            else if(strcmp(argv[i], "grienwank") == 0){
+                *(function)=grienwank;
+            }
+            else if(strcmp(argv[i], "levy") == 0){
+                *(function)=levy;
+            }
             else {
                 *(function)=sphere;
             }

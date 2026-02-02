@@ -6,6 +6,10 @@
 #include <math.h>
 #include <stdlib.h>
 
+#ifndef M_PI 
+#define M_PI 3.14159265358979323846
+#endif 
+
 // incomplete definitions for resolving circular dependency with tools.h
 typedef struct batAlgorithmResults batAlgorithmResults;
 typedef struct batAlgorithmParameters batAlgorithmParameters;
@@ -21,9 +25,25 @@ typedef struct batAlgorithmParameters batAlgorithmParameters;
  */
 typedef double (*ObjectiveFn)(const Vector *pos);
 
-/* Benchmark functions (dimension-agnostic)*/
+/* Benchmark functions (dimension-agnostic)*/ 
+
+//rosenbrock -> global minimum at [1,...,1]
 double rosenbrock(const Vector *pos);
+
+//sphere -> global minimum at [0,...,0]
 double sphere(const Vector *pos);
+
+//ackley -> global minimum at [0,...,0], local around every x_i=k
+#define ACKLEY_A 20.0 
+#define ACKLEY_B 0.2
+#define ACKLEY_C (2*M_PI)
+double ackley(const Vector *pos);
+
+//grienwank -> global minimum at [0,...,0], local around x_1=+-2*pi*sqrt(i) 
+double grienwank(const Vector *pos);
+
+//levy -> global minimum at [1,...,1], local around x_1= 1 +- 4 (for every dimention)
+double levy(const Vector *pos);
 
 /* Wrapper*/
 double objective_eval(ObjectiveFn f, const Vector *pos);

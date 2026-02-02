@@ -29,6 +29,48 @@ double sphere(const Vector *pos) {
     return sum;
 } 
 
+double ackley(const Vector *pos) {
+    double sumSq=0.0;
+    double sumCos=0.0;
+    for (unsigned int i=0;i<pos->d;i++) {
+        sumSq += pos->data[i]*pos->data[i];
+        sumCos += cos(ACKLEY_C * pos->data[i]);
+    }
+    double term1= -ACKLEY_A * exp(-ACKLEY_B * sqrt(sumSq/pos->d));
+    double term2= -exp(sumCos/pos->d);
+    return term1+term2 + ACKLEY_A + exp(1.0);
+}
+
+double grienwank(const Vector *pos) {
+    double sumSq = 0.0;
+    double prodCos = 1.0;
+    for (unsigned int i=0;i<pos->d; i++) {
+        sumSq += pos->data[i]*pos->data[i];
+        prodCos *= cos((pos->data[i])/sqrt((double)(i+1)));
+    }
+    return 1.0 + sumSq /4000.0 - prodCos;
+}
+
+double levy(const Vector *pos) {
+    double result=0.0;
+
+    for (unsigned int i=0;i<pos->d;i++) {
+        double wi=1.0 + (pos->data[i] - 1.0) / 4.0; 
+
+        if (i==0) {
+            result += pow(sin(M_PI*wi),2);
+        }
+        if (i<(pos->d-1)) {
+            double wiNext=1.0+(pos->data[i+1]-1.0)/4.0;
+            result += pow((wi-1.0),2) * (1.0 + 10.0 * pow(sin(M_PI * wiNext),2));
+        } else {
+            result += pow((wi-1.0),2)*(1.0 +pow(sin(2.0 * M_PI * wi),2));
+        }
+    }
+    return result;
+}
+
+
 /**
  * Optional wrapping function that corrects the result based on whether
  * Maximization or Minimazation is chosen (through OPTIMIZATION_MODE)

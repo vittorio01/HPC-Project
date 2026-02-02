@@ -94,6 +94,7 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
                 //Initialization of the initial positions using random functions. 
                 for (unsigned int i=0;i<parameters->vectorDim;i++) {
                     currentBatPos->data[i]=randomUniformRadius(parameters->initPos->data[i],parameters->initPosRadius,randomSeed);
+                    batVel->data[batId][i]=0.0;
                 }
                 copyToMatrix(currentBatPos,batPos,batId); 
 
@@ -276,9 +277,13 @@ int main(int argc, char** argv) {
         printParameters(parameters);
     }
 
-    batAlgorithmResults* results=NULL;
-    initResults(&results,2);
-    
+    batAlgorithmResults** results=NULL;
+    results=malloc(sizeof(batAlgorithmResults)*NLAUNCHS);
+    for (unsigned int i=0;i<NLAUNCHS;i++) {
+        initResults(&results[i],dim);
+    }
+    unsigned int bestResult=0;
+     
     double start,end;
     double totalTime=0;
     for (unsigned int i=0;i<NLAUNCHS;i++) {
@@ -286,13 +291,16 @@ int main(int argc, char** argv) {
         
         start=MPI_Wtime();
         
-        batAlgorithmMPI(parameters,results,function,mpiId,mpiProc);
+        batAlgorithmMPI(parameters,results[i],function,mpiId,mpiProc);
         
         end=MPI_Wtime();
         totalTime+=end-start;
         if (mpiId==0) {
             printf("Iteration %d took %f\n",i,end-start);
-            printResults(results);
+            
+            if (i>0 && results[i]->bestFitness<results[bestResult]->bestFitness) {
+                bestResult=i;
+            } 
         }       
     }
     if(mpiId==0) {
@@ -300,9 +308,14 @@ int main(int argc, char** argv) {
         printf("Average execution time: %f\n", avgTime);
         
         /* Print machine readable output */
-        printBenchmarkData(results, parameters, avgTime);
+        printResults(results[bestResult]);
+
+        printBenchmarkData(results[bestResult], parameters, avgTime);
     }
-    destroyResults(&results);
+    for (unsigned int i=0;i<NLAUNCHS;i++) {
+        destroyResults(&results[i]);
+    }
+    free(results);
     destroyParameters(&parameters);
     MPI_Finalize();
     return 0;
