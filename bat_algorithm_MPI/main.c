@@ -281,19 +281,7 @@ int main(int argc, char** argv) {
         parameters->initPos->data[i] = 0.0;
     }
     
-    // Configure algorithm parameters
-    parameters->fMin = FMIN;
-    parameters->fMax = FMAX;
-    parameters->initPulse = PULSE;
-    parameters->initLoudness = LOUDNESS;
-    parameters->gamma = GAMMA;
-    parameters->alpha = ALPHA;
-    parameters->vectorDim = VECTOR_DIM;
-    parameters->initPosRadius = POS_RADIUS;
-    parameters->bats = BATS / mpiProc;  // Local bats per process 
-    parameters->iterations = ITERATIONS;
-
-    // Parse CLI Arguments (if present)
+    // Parse CLI Arguments 
     ObjectiveFn function=NULL; 
     parseArguments(argc, argv, parameters,&function);
 
