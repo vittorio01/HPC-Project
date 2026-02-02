@@ -82,13 +82,28 @@ def evaluate_configuration(params):
             threads_per_proc = max(1, total_cores // args.mpi_procs)
             env["OMP_NUM_THREADS"] = str(threads_per_proc)
 
-    # RUN LOCALLY
+    # RUN LOCALLY with aggressive timeout (0.5 to kill slow configs immediately)
+    # Account for MPI startup overhead with small buffer
+    timeout_threshold = 5 
     try:
-        res = subprocess.run(final_cmd, capture_output=True, text=True, timeout=args.max_exec_time + 10, env=env)
+        res = subprocess.run(final_cmd, capture_output=True, text=True, timeout=timeout_threshold, env=env)
         parsed = parse_benchmark_output(res.stdout)
+        if parsed:
+            # Add the full params to the result for tracking
+            parsed['params'] = params
+            # Hard thresholds: reject if too slow OR too inaccurate
+            if parsed['time'] > 0.5:
+                print(f"  [REJECTED - Time] Fit={parsed['fitness']:.4e}, Time={parsed['time']:.4f}s (>{0.5}s)")
+                return None  # Too slow, skip this config
+            if parsed['fitness'] > 1e-3:
+                print(f"  [REJECTED - Fitness] Fit={parsed['fitness']:.4e}, Time={parsed['time']:.4f}s (>{1e-3:.0e})")
+                return None  # Not accurate enough, skip this config
+            # Passed thresholds
+            print(f"  [ACCEPTED] Fit={parsed['fitness']:.4e}, Time={parsed['time']:.4f}s")
         return parsed
     except subprocess.TimeoutExpired:
-        return None
+        print(f"  [TIMEOUT] Killed after {timeout_threshold}s")
+        return None  # Killed for being too slow
     except Exception as e:
         return None
 
@@ -97,10 +112,10 @@ def main():
     # -- PARSING -- #
     parser = argparse.ArgumentParser(description="Parameter Search Script")
     parser.add_argument("-I", "--implementation", type=str.upper, choices=['CPU', 'MPI', 'HYBRID'], default='CPU', help='Either CPU, MPI or HYBRID')
-    parser.add_argument("-O", "--objective", type=str.upper, choices=['TIME', 'ACCURACY'], default='ACCURACY', help='Choose whether to optimize for timing or accuracy')
+    parser.add_argument("-O", "--objective", type=str.upper, choices=['TIME', 'ACCURACY'], default='ACCURACY', help='Choose whether to optimize for timing or accuracy (both must meet time<=0.1s and fitness<=1e-3)')
     parser.add_argument("-G", "--granularity", type=str.upper, choices=['LOW', 'MEDIUM', 'HIGH'], default='MEDIUM', help='Either LOW, MEDIUM or HIGH')
-    parser.add_argument("--accuracy_level", type=float, default=0.5, help='This selects the maximum possible fitness that can be achieved, when used in conjuction with TIME optimization')
-    parser.add_argument("--max_exec_time", type=float, default=60, help='Maximum execution time in SECONDS that can be accepted when ACCURACY optimization is chosen')
+    parser.add_argument("--accuracy_level", type=float, default=0.5, help='[DEPRECATED - hard threshold of 1e-3 is used] Max fitness constraint')
+    parser.add_argument("--max_exec_time", type=float, default=60, help='[DEPRECATED - hard threshold of 0.1s is used] Max execution time constraint')
     parser.add_argument("--mpi_procs", type=int, default=None, help='Number of MPI processes (default: auto-detect based on CPU cores)')
     parser.add_argument("--function", type=str, default='sphere', help='Optimization function (e.g., sphere, rosenbrock, rastrigin, ackley)')
     parser.add_argument("--radius", type=float, default=100.0, help='Search radius for initial position (function-dependent)')
@@ -191,7 +206,7 @@ def main():
     BATS_MIN = 100
     BATS_MAX = 100000
     ITERATIONS_MIN = 10 
-    ITERATIONS_MAX = 500 
+    ITERATIONS_MAX = 200
     ALPHA_MIN = 0.01
     ALPHA_MAX = 0.99
     GAMMA_MIN = 0.01
@@ -202,19 +217,30 @@ def main():
     LOUDNESS_MAX = 1.0
 
     # Define number of steps based on granularity
-    # LOW: Quick sweep (~10 steps per param = 10,000 tests)
-    # MEDIUM: Thorough sweep (~100 steps per param)
-    # HIGH: Comprehensive sweep (~200 steps per param)
-    steps_config = {'LOW': 10, 'MEDIUM': 100, 'HIGH': 200}
+    # LOW: Quick sweep (10 steps per param = 10,000 tests)
+    # MEDIUM: Thorough sweep (100 steps per param)
+    # HIGH: Comprehensive sweep (200 steps per param)
+    steps_config = {'LOW': 5, 'MEDIUM': 10, 'HIGH': 20}
     num_steps = steps_config[args.granularity]
     
-    # Parallel processing - use all available cores
-    num_workers = multiprocessing.cpu_count()
-    print(f"Using {num_workers} parallel workers for faster execution.\n")
+    # Parallel processing - Moderate parallelization for better speed
+    # For MPI/HYBRID: each test spawns multiple processes, so limit workers
+    if args.implementation in ['MPI', 'HYBRID']:
+        # Use 4 workers - balances speed vs stability (4 workers × 4 MPI procs = 16 total)
+        num_workers = 4
+        print(f"Running MPI/HYBRID tests with {num_workers} parallel workers.\n")
+    else:
+        # CPU implementation can handle more parallel workers safely
+        num_workers = min(12, multiprocessing.cpu_count())
+        print(f"Using {num_workers} parallel workers for faster execution.\n")
     
-    # Early stopping thresholds
-    BEST_FITNESS = 1e-9  # Fitness <= this is considered optimal (e.g., for sphere min=0)
-    BEST_TIME = 0.001     # Time <= 0.001s is considered excellent performance
+    # Hard requirement thresholds (configs violating these are rejected immediately)
+    MAX_TIME = 0.1       # Time must be <= 0.1s
+    MAX_FITNESS = 1e-3   # Fitness must be <= 10^-3
+    
+    # Early stopping thresholds (stop search if found)
+    BEST_FITNESS = 1e-9  # Fitness <= this is considered optimal
+    BEST_TIME = 0.001    # Time <= 0.001s is considered excellent
 
     # Defaults (used when not sweeping)
     defaults = {
@@ -233,7 +259,7 @@ def main():
     best_result = None
     best_params = None
 
-    def update_best(res, params):
+    def update_best(res):
         """Updates best result and returns True if optimal solution found (early stop)."""
         nonlocal best_result, best_params
 
@@ -242,30 +268,27 @@ def main():
         fitness = res['fitness']
         time_sec = res['time']
         
-        print(f"   -> Fit: {fitness:.5e}, Time: {time_sec:.5f}s")
-        
+        # Note: All results here already passed hard thresholds (time<=0.1s, fitness<=1e-3)
         if args.objective == 'ACCURACY':
-            # Minimize Fitness, subject to time constraint
-            if time_sec <= args.max_exec_time:
-                if best_result is None or fitness < best_result['fitness']:
-                    best_result = res
-                    best_params = params.copy()
-                    # Early stop if we found excellent fitness
-                    if fitness <= BEST_FITNESS:
-                        print(f"\n*** OPTIMAL FITNESS FOUND: {fitness:.5e} <= {BEST_FITNESS:.5e} ***")
-                        print("Stopping search early.\n")
-                        return True
+            # Minimize Fitness
+            if best_result is None or fitness < best_result['fitness']:
+                best_result = res
+                best_params = res.get('params', {}).copy()
+                # Early stop if we found optimal fitness
+                if fitness <= BEST_FITNESS:
+                    print(f"\n*** OPTIMAL FITNESS FOUND: {fitness:.5e} <= {BEST_FITNESS:.5e} ***")
+                    print("Stopping search early.\n")
+                    return True
         else: # TIME
-             # Minimize Time, subject to fitness constraint
-             if fitness <= args.accuracy_level:
-                if best_result is None or time_sec < best_result['time']:
-                    best_result = res
-                    best_params = params.copy()
-                    # Early stop if we found excellent time
-                    if time_sec <= BEST_TIME:
-                        print(f"\n*** OPTIMAL TIME FOUND: {time_sec:.5f}s <= {BEST_TIME:.5f}s ***")
-                        print("Stopping search early.\n")
-                        return True
+            # Minimize Time
+            if best_result is None or time_sec < best_result['time']:
+                best_result = res
+                best_params = res.get('params', {}).copy()
+                # Early stop if we found excellent time
+                if time_sec <= BEST_TIME:
+                    print(f"\n*** OPTIMAL TIME FOUND: {time_sec:.5f}s <= {BEST_TIME:.5f}s ***")
+                    print("Stopping search early.\n")
+                    return True
         
         return False
 
@@ -304,10 +327,9 @@ def main():
             completed = 0
             for res in pool.imap_unordered(evaluate_configuration, all_configs, chunksize=1):
                 completed += 1
-                # Note: we don't have params order preserved with imap_unordered, but we can still update best
+                should_stop = False
                 if res:
-                    # Find matching params (not ideal but works)
-                    should_stop = update_best(res, {})
+                    should_stop = update_best(res)
                 
                 # Progress update for every test
                 if best_result:
@@ -356,8 +378,9 @@ def main():
             completed = 0
             for res in pool.imap_unordered(evaluate_configuration, all_configs, chunksize=10):
                 completed += 1
+                should_stop = False
                 if res:
-                    should_stop = update_best(res, {})
+                    should_stop = update_best(res)
                 
                 # Progress update for every test
                 if best_result:
@@ -407,8 +430,9 @@ def main():
             completed = 0
             for res in pool.imap_unordered(evaluate_configuration, all_configs, chunksize=50):
                 completed += 1
+                should_stop = False
                 if res:
-                    should_stop = update_best(res, {})
+                    should_stop = update_best(res)
                 
                 # Progress update for every test
                 if best_result:
