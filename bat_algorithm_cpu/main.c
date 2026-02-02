@@ -3,88 +3,82 @@
 #include <string.h>
 #include <math.h>
 #include <sys/time.h>
-#include <time.h>
 
-#include "tools.h"   // <-- brings batAlgorithmParameters / batAlgorithmResults + includes data.h
+#include "tools.h"
 #include "benchmark.h"
 
-/* Sphere objective: f(x) = sum x_i^2 */
-static double objective(const double *x, unsigned int dim)
+/* Create a temporary Vector view over a row in Matrix (no allocation). */
+static inline Vector makeVectorView(double *row, unsigned int dim)
 {
-    double s = 0.0;
-    for (unsigned int i = 0; i < dim; ++i)
-        s += x[i] * x[i];
-    return s;
+    Vector v;
+    v.data = row;
+    v.d    = (int)dim;   // tools.c / benchmark.c use Vector->d
+    return v;
 }
 
-static double rand_double(void)
+/* CPU Bat Algorithm */
+static void batAlgorithmCPU(batAlgorithmParameters *parameters,
+                            batAlgorithmResults *results,
+                            ObjectiveFn function,
+                            ugSeed *seed)
 {
-    return (double)rand() / (double)RAND_MAX;
-}
-
-/* Main CPU version required by issue #15:
- * - reads everything from parameters
- * - writes everything into results
- */
-static void batAlgorithmCPU(batAlgorithmParameters *parameters, batAlgorithmResults *results, ObjectiveFn function)
-{
-    const unsigned int bats = parameters->bats;
-    const unsigned int dim  = parameters->vectorDim;
+    const unsigned int bats  = parameters->bats;
+    const unsigned int dim   = parameters->vectorDim;
     const unsigned int iters = parameters->iterations;
 
-    Matrix *x = NULL;   // positions  [bats x dim]
-    Matrix *v = NULL;   // velocities [bats x dim]
-    Vector *f = NULL;   // fitness    [bats]
-    Vector *A = NULL;   // loudness   [bats]
-    Vector *r = NULL;   // pulse rate [bats]
+    Matrix *x = NULL;     // positions  [bats x dim]
+    Matrix *v = NULL;     // velocities [bats x dim]
+    Vector *fit = NULL;   // fitness    [bats]
+    Vector *A = NULL;     // loudness   [bats]
+    Vector *r = NULL;     // pulse rate [bats]
 
-    Vector *best = NULL; // best position [dim]
+    Vector *best = NULL;  // best position [dim]
     double best_f = 1.0e300;
     unsigned int best_idx = 0;
 
-    /* allocate dynamic structures (from data.h library) */
     initMatrix(&x, bats, dim);
     initMatrix(&v, bats, dim);
-    initVector(&f, bats);
+    initVector(&fit, bats);
     initVector(&A, bats);
     initVector(&r, bats);
     initVector(&best, dim);
 
     initMatrixData(v, 0.0);
 
-    /* ---- Initialization (spawn around initPos with radius) ---- */
+    /* ---- Initialization ---- */
     for (unsigned int i = 0; i < bats; ++i) {
         for (unsigned int d = 0; d < dim; ++d) {
-            double u = 2.0 * rand_double() - 1.0; // [-1,1]
-            x->data[i][d] = parameters->initPos->data[d] + u * parameters->initPosRadius;
+            x->data[i][d] = randomUniformRadius(parameters->initPos->data[d],
+                                                parameters->initPosRadius,
+                                                seed);
         }
 
-        f->data[i] = objective(x->data[i], dim);
+        Vector posView = makeVectorView(x->data[i], dim);
+        fit->data[i] = objective_eval(function, &posView);
 
         A->data[i] = parameters->initLoudness;
         r->data[i] = parameters->initPulse;
 
-        if (f->data[i] < best_f) {
-            best_f = f->data[i];
+        if (fit->data[i] < best_f) {
+            best_f = fit->data[i];
             best_idx = i;
-            for (unsigned int d = 0; d < dim; ++d)
-                best->data[d] = x->data[i][d];
+            memcpy(best->data, x->data[i], dim * sizeof(double));
         }
     }
 
     /* ---- Main loop ---- */
     for (unsigned int t = 1; t <= iters; ++t) {
 
-        /* average loudness */
         double A_mean = 0.0;
-        for (unsigned int i = 0; i < bats; ++i)
-            A_mean += A->data[i];
+        for (unsigned int i = 0; i < bats; ++i) A_mean += A->data[i];
         A_mean /= (double)bats;
 
         for (unsigned int i = 0; i < bats; ++i) {
 
             /* frequency and global move */
-            double freq = parameters->fMin + (parameters->fMax - parameters->fMin) * rand_double();
+            double freq = parameters->fMin +
+                          (parameters->fMax - parameters->fMin) *
+                          randomUniform(0.0, 1.0, seed);
 
             for (unsigned int d = 0; d < dim; ++d) {
                 v->data[i][d] += (x->data[i][d] - best->data[d]) * freq;
@@ -92,45 +86,45 @@ static void batAlgorithmCPU(batAlgorithmParameters *parameters, batAlgorithmResu
             }
 
             /* local random walk with probability (rand > r[i]) */
-            if (rand_double() > r->data[i]) {
-                double eps = 2.0 * rand_double() - 1.0;  // [-1,1]
+            if (randomUniform(0.0, 1.0, seed) > r->data[i]) {
+                double eps = randomUniform(-1.0, 1.0, seed);
                 for (unsigned int d = 0; d < dim; ++d) {
                     x->data[i][d] = best->data[d] + eps * A_mean;
                 }
             }
 
             /* evaluate */
-            double f_new = objective(x->data[i], dim);
+            Vector posView = makeVectorView(x->data[i], dim);
+            double f_new = objective_eval(function, &posView);
 
             /* stochastic acceptance using loudness */
-            if (f_new <= f->data[i] && rand_double() < A->data[i]) {
+            if (f_new <= fit->data[i] && randomUniform(0.0, 1.0, seed) < A->data[i]) {
 
-                f->data[i] = f_new;
+                fit->data[i] = f_new;
 
-                /* update loudness and pulse rate (from parameters->alpha/gamma) */
+                /* update loudness and pulse rate */
                 A->data[i] *= parameters->alpha;
-                r->data[i] = parameters->initPulse * (1.0 - exp(-parameters->gamma * (double)t));
+                r->data[i] = parameters->initPulse *
+                             (1.0 - exp(-parameters->gamma * (double)t));
 
                 /* update global best */
                 if (f_new < best_f) {
                     best_f = f_new;
                     best_idx = i;
-                    for (unsigned int d = 0; d < dim; ++d)
-                        best->data[d] = x->data[i][d];
+                    memcpy(best->data, x->data[i], dim * sizeof(double));
                 }
             }
         }
     }
 
-    /* ---- Save into results structure (required by tools.h) ---- */
+    /* ---- Save results ---- */
     results->bestFitness = best_f;
     results->bestIndex   = best_idx;
     copyVector(best, results->bestPos);
 
-    /* free local dynamic allocations */
     destroyMatrix(&x);
     destroyMatrix(&v);
-    destroyVector(&f);
+    destroyVector(&fit);
     destroyVector(&A);
     destroyVector(&r);
     destroyVector(&best);
@@ -140,9 +134,7 @@ int main(int argc, char** argv)
 {
     struct timeval start, end;
 
-    srand((unsigned)time(NULL));
-
-    /* Parse CLI arguments early to get dimension before allocation */
+    /* Parse --dim early BEFORE initParameters(), because tools.c does not reallocate initPos on --dim */
     int dim = 2; // default
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--dim") == 0 && i + 1 < argc) {
@@ -151,52 +143,60 @@ int main(int argc, char** argv)
         }
     }
 
-    /* Allocate + init the official IO structs with proper dimension */
     batAlgorithmParameters *parameters = NULL;
     batAlgorithmResults *results = NULL;
 
-    initParameters(&parameters, dim);
-    initResults(&results, dim);
+    initParameters(&parameters, (unsigned int)dim);
+    initResults(&results, (unsigned int)dim);
 
-    /* Override defaults to match your old constants */
-    parameters->bats = 1000;
-    parameters->iterations = 500;
-
-    parameters->fMin = 0.0;
-    parameters->fMax = 2.0;
-
-    parameters->alpha = 0.9;
-    parameters->gamma = 0.9;
-
-    parameters->initLoudness = 1.0;
-    parameters->initPulse    = 0.5;
-
-    /* old code used random [-5,5]; we emulate that via initPos + radius */
+    /* Keep ONLY initPos initialization to [0,...,0] */
     for (unsigned int d = 0; d < parameters->vectorDim; ++d)
         parameters->initPos->data[d] = 0.0;
-    parameters->initPosRadius = 500;
 
-    /* Parse CLI arguments (overrides the defaults)*/
-    ObjectiveFn function=NULL; 
-    parseArguments(argc, argv, parameters,&function);
-     
-    /* Run + time */
-    gettimeofday(&start, NULL);
-    batAlgorithmCPU(parameters, results, function);
-    gettimeofday(&end, NULL);
+    /* Parse CLI (overrides defaults) + choose objective function */
+    ObjectiveFn function = sphere; // safe default if user doesn't provide --function
+    parseArguments(argc, argv, parameters, &function);
 
-    double elapsed = (double)(end.tv_sec - start.tv_sec) +
-                     (double)(end.tv_usec - start.tv_usec) / 1.0e6;
+    /* RNG seed via tools.h (replaces srand(time(NULL))) */
+    ugSeed *seed = NULL;
+    generateSeed(&seed, 0);
 
-    printf("Execution time: %.6f sec\n\n", elapsed);
+    /* Run multiple times and compute average execution time */
+    const int RUNS = 10;
+    double total = 0.0;
 
-    /* Print using the dedicated library function (required) */
-    printResults(results);
+    /* Keep best result over runs */
+    batAlgorithmResults *bestResults = NULL;
+    initResults(&bestResults, (unsigned int)dim);
+    bestResults->bestFitness = 1.0e300;
 
-    /* Print machine readable output for parameter search */
-    printBenchmarkData(results, parameters, elapsed);
+    for (int run = 0; run < RUNS; ++run) {
+        gettimeofday(&start, NULL);
+        batAlgorithmCPU(parameters, results, function, seed);
+        gettimeofday(&end, NULL);
 
-    /* cleanup (required) */
+        double elapsed = (double)(end.tv_sec - start.tv_sec) +
+                         (double)(end.tv_usec - start.tv_usec) / 1.0e6;
+
+        total += elapsed;
+
+        if (results->bestFitness < bestResults->bestFitness) {
+            bestResults->bestFitness = results->bestFitness;
+            bestResults->bestIndex   = results->bestIndex;
+            copyVector(results->bestPos, bestResults->bestPos);
+        }
+    }
+
+    double avg = total / (double)RUNS;
+    printf("Average execution time over %d runs: %.6f sec\n\n", RUNS, avg);
+
+    /* Required prints */
+    printResults(bestResults);
+    printBenchmarkData(bestResults, parameters, avg);
+
+    /* cleanup */
+    destroySeed(&seed);
+    destroyResults(&bestResults);
     destroyResults(&results);
     destroyParameters(&parameters);
 
