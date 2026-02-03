@@ -69,11 +69,11 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
         double bestFitness = 1.0e300; 
         unsigned int bestIndex = 0;
 
-        initMatrix(&batPos, parameters->bats, parameters->vectorDim); 
-        initMatrix(&batVel, parameters->bats, parameters->vectorDim); 
-        initVector(&batFitness, parameters->bats);
-        initVector(&batLoudness, parameters->bats);
-        initVector(&batPulse, parameters->bats);
+        initMatrix(&batPos, batsToProcess, parameters->vectorDim); 
+        initMatrix(&batVel, batsToProcess, parameters->vectorDim); 
+        initVector(&batFitness, batsToProcess);
+        initVector(&batLoudness, batsToProcess);
+        initVector(&batPulse, batsToProcess);
         initVector(&bestPos, parameters->vectorDim);
         initVector(&currentBatPos, parameters->vectorDim);
         
