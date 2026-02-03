@@ -43,8 +43,14 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
     double bestThreadFitness=1.0e300;
     
     //The number of threads to launch is obtained by dividing the number of bats to process by the number of target bats per thread. 
-    //The result is then adjusted in case the divisio generates a remaindes (ceiling division).
+    //The result is then adjusted in case the divisio generates a remaindes (ceiling division). 
+    if (batsToProcess==0) {
+        results->bestFitness=1.0e300;
+        return;
+    }
+    
     unsigned int threadsNum=omp_get_max_threads();
+    if (threadsNum>batsToProcess) threadsNum=batsToProcess;
     #pragma omp parallel num_threads(threadsNum) 
     {
         unsigned int threadId=omp_get_thread_num();
@@ -209,7 +215,7 @@ void batAlgorithmMPI(batAlgorithmParameters* parameters, batAlgorithmResults* re
     unsigned int localBats=intCeil(parameters->bats,mpiProc,mpiId);
 
     //Execution of the openMP algorithm
-    batAlgorithmOMP(parameters,results,f, mpiId,localBats);
+    if (localBats>0) batAlgorithmOMP(parameters,results,f, mpiId,localBats);
 
     //Estimation of the best fitness and its mpi process
     struct {
@@ -217,7 +223,9 @@ void batAlgorithmMPI(batAlgorithmParameters* parameters, batAlgorithmResults* re
         int id;
     } local, global;
 
-    local.fitness = results->bestFitness;
+    if (localBats>0) local.fitness = results->bestFitness;
+    else local.fitness = 1.0e300;
+
     local.id = mpiId;
     MPI_Allreduce(&local,&global,1,MPI_DOUBLE_INT,MPI_MINLOC,MPI_COMM_WORLD);
 
