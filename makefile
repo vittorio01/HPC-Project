@@ -43,7 +43,8 @@ compile: libs-compile $(PRG)/main.c
 	echo 'cd $${PBS_O_WORKDIR}' >> $(RUN)
 	echo 'module load $(MODULE)' >> $(RUN)
 	echo 'module load $(MODULE_GSL)' >> $(RUN)
-	echo 'mpiexec -n $(PROCESSES) $(OUT_FOLDER)/$(PRG) --bats $(BATS) --iterations $(ITERATIONS) --dim $(DIM) --alpha $(ALPHA) --gamma $(GAMMA) --pulse $(PULSE) --loudness $(LOUDNESS) --fmin $(FMIN) --fmax $(FMAX) --radius $(RADIUS) --function $(FUNCTION)' >> $(RUN)
+	echo 'export OMP_NUM_THREADS=2' >> $(RUN)
+	echo 'mpiexec --map-by core --bind-to core -n $(PROCESSES) $(OUT_FOLDER)/$(PRG) --bats $(BATS) --iterations $(ITERATIONS) --dim $(DIM) --alpha $(ALPHA) --gamma $(GAMMA) --pulse $(PULSE) --loudness $(LOUDNESS) --fmin $(FMIN) --fmax $(FMAX) --radius $(RADIUS) --function $(FUNCTION)' >> $(RUN)
 	chmod +x $(RUN)
 	mkdir -p  $(LOG_FOLDER) $(OUT_FOLDER) 
 	@echo "--- Compiling MPI program ---"
@@ -58,7 +59,7 @@ run: compile
 
 run-local: compile 
 	@echo "--- Executing program in local ---"
-	mpiexec -n $(PROCESSES) $(OUT_FOLDER)/$(PRG) --bats $(BATS) --iterations $(ITERATIONS) --dim $(DIM) --alpha $(ALPHA) --gamma $(GAMMA) --pulse $(PULSE) --loudness $(LOUDNESS) --fmin $(FMIN) --fmax $(FMAX) --radius $(RADIUS) --function $(FUNCTION)
+	mpiexec --map-by core --bind-to core -n $(PROCESSES) $(OUT_FOLDER)/$(PRG) --bats $(BATS) --iterations $(ITERATIONS) --dim $(DIM) --alpha $(ALPHA) --gamma $(GAMMA) --pulse $(PULSE) --loudness $(LOUDNESS) --fmin $(FMIN) --fmax $(FMAX) --radius $(RADIUS) --function $(FUNCTION)
 	@echo "--- End of execution ---"
 
 clean: libs-clean 

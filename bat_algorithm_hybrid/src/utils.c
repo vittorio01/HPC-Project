@@ -11,11 +11,11 @@ int intMin(int a,int b) {
 }
 
 
-unsigned int intCeil(unsigned int elements, unsigned int n, unsigned id) {
-    unsigned int elementsPerN=(elements + n - 1)/n; 
-    unsigned int nStart = id * elementsPerN; 
-    unsigned int nEnd = intMin(nStart+elementsPerN,elements);
-    return nEnd-nStart;
+unsigned int intCeil(int elements, int n, int id) {
+    int elementsPerN=(elements + n - 1)/n; 
+    int nStart = id * elementsPerN; 
+    int nEnd = intMin(nStart+elementsPerN,elements);
+    return intMax(nEnd-nStart,0);
 }
 
 
