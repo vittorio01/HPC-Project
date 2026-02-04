@@ -51,6 +51,7 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
     
     unsigned int threadsNum=omp_get_max_threads();
     if (threadsNum>batsToProcess) threadsNum=batsToProcess;
+    if (threadsNum<1) return; 
     #pragma omp parallel num_threads(threadsNum) 
     {
         unsigned int threadId=omp_get_thread_num();
@@ -82,7 +83,7 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
         
         //The threads verify if all their resouces are actually allocated in the heap by changing the value of runtimeError in a critical section. 
         bool error=false; 
-        if (randomSeed==NULL || batPos==NULL || batVel==NULL || batFitness == NULL || batLoudness==NULL || batPulse==NULL || bestPos==NULL) error=true;
+        if (randomSeed==NULL || batPos==NULL || batVel==NULL || batFitness == NULL || batLoudness==NULL || batPulse==NULL || bestPos==NULL || currentBatPos==NULL) error=true;
         #pragma omp critical 
         {
             if (error==true && runtimeError==false) {
