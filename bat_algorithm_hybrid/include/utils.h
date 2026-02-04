@@ -25,6 +25,6 @@ int intMin(int a,int b);
  * n        -> number of threads 
  * id       -> id of the thread 
  */
-unsigned int intCeil(unsigned int elements, unsigned int n, unsigned id);
+unsigned int intCeil(int elements, int n, int id);
 
 #endif 

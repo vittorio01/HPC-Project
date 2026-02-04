@@ -51,7 +51,7 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
     
     unsigned int threadsNum=omp_get_max_threads();
     if (threadsNum>batsToProcess) threadsNum=batsToProcess;
-    if (threadsNum<1) return; 
+
     #pragma omp parallel num_threads(threadsNum) 
     {
         unsigned int threadId=omp_get_thread_num();
@@ -214,10 +214,12 @@ void batAlgorithmMPI(batAlgorithmParameters* parameters, batAlgorithmResults* re
     
     //The number of bats per OMP thread are obtained by ceiling.
     unsigned int localBats=intCeil(parameters->bats,mpiProc,mpiId);
-
+    
     //Execution of the openMP algorithm
-    if (localBats>0) batAlgorithmOMP(parameters,results,f, mpiId,localBats);
-
+    if (localBats>0) {
+        batAlgorithmOMP(parameters,results,f, mpiId,localBats);
+    } 
+    
     //Estimation of the best fitness and its mpi process
     struct {
         double fitness;
@@ -229,7 +231,6 @@ void batAlgorithmMPI(batAlgorithmParameters* parameters, batAlgorithmResults* re
 
     local.id = mpiId;
     MPI_Allreduce(&local,&global,1,MPI_DOUBLE_INT,MPI_MINLOC,MPI_COMM_WORLD);
-
     if (mpiId==0) {
 
         // The process 0 waits the best process to send its results and overwrite its result structure
