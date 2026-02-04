@@ -14,7 +14,7 @@
 #define M_PI 3.14159265358979323846
 
 // -- Bat Algorithm Parameters --
-#define FMAX            2.0
+#define FMAX            1.0
 #define FMIN            0.0
 #define PULSE           0.05
 #define LOUDNESS        1.0
@@ -194,8 +194,10 @@ void batAlgorithmMPI(batAlgorithmParameters* parameters, batAlgorithmResults* re
                 for (unsigned int d = 0; d < vectorDim; d++) {
                     // The following assignment is slightly different from the original paper. In the paper
                     // the assignment would be something like candPos = bestBatPos + random * avgLoudness
-                    // but this means a non trivial amount of bats at start (when pulse)
-                    candPos->data[d] = batPos->data[i][d] + randomUniform(-1, 1, randomSeed) * avgLoudness;
+                    // but this means a non trivial amount of bats at start (when pulse is high) will fly
+                    // towards the best position, risking to fall inside a local minima. 
+                    // candPos->data[d] = batPos->data[i][d] + randomUniform(-1, 1, randomSeed) * avgLoudness;
+                    candPos->data[d] = globalBestPos->data[d] + randomUniform(-1, 1, randomSeed) * avgLoudness;
                 }
                 // Apply boundary conditions
                 checkBounds(candPos, parameters->initPosRadius);
@@ -295,7 +297,7 @@ int main(int argc, char** argv) {
     
     // Initialize results structure
     batAlgorithmResults* results = NULL;
-    initResults(&results, VECTOR_DIM);
+    initResults(&results, dim);
     
     double start, end;
     double totalTime = 0;
@@ -314,13 +316,6 @@ int main(int argc, char** argv) {
             printf("Iteration %d took %f s\n", i, end - start);
             printResults(results);
             
-            // Print distance from known minimum for Rosenbrock
-            printf("Rosenbrock minima is at: (1, ..., 1) with a value of 0\n");
-            printf("Distance (component-wise): [");
-            for (unsigned int d = 0; d < results->bestPos->d; d++) {
-                printf("%f", results->bestPos->data[d] - 1.0);
-                if (d < results->bestPos->d - 1) printf(", ");
-            }
             printf("]\n\n");
         }
     }
