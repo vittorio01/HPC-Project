@@ -69,11 +69,11 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
         double bestFitness = 1.0e300; 
         unsigned int bestIndex = 0;
 
-        initMatrix(&batPos, batsToProcess, parameters->vectorDim); 
-        initMatrix(&batVel, batsToProcess, parameters->vectorDim); 
-        initVector(&batFitness, batsToProcess);
-        initVector(&batLoudness, batsToProcess);
-        initVector(&batPulse, batsToProcess);
+        initMatrix(&batPos, batsPerThread, parameters->vectorDim); 
+        initMatrix(&batVel, batsPerThread, parameters->vectorDim); 
+        initVector(&batFitness, batsPerThread);
+        initVector(&batLoudness, batsPerThread);
+        initVector(&batPulse, batsPerThread);
         initVector(&bestPos, parameters->vectorDim);
         initVector(&currentBatPos, parameters->vectorDim);
         
@@ -85,7 +85,7 @@ void batAlgorithmOMP(batAlgorithmParameters* parameters, batAlgorithmResults* re
         if (randomSeed==NULL || batPos==NULL || batVel==NULL || batFitness == NULL || batLoudness==NULL || batPulse==NULL || bestPos==NULL) error=true;
         #pragma omp critical 
         {
-            if (error==true) {
+            if (error==true && runtimeError==false) {
                 runtimeError=true;
             }
         }
@@ -286,7 +286,7 @@ int main(int argc, char** argv) {
     }
 
     batAlgorithmResults** results=NULL;
-    results=malloc(sizeof(batAlgorithmResults)*NLAUNCHS);
+    results=malloc(sizeof(batAlgorithmResults*)*NLAUNCHS);
     for (unsigned int i=0;i<NLAUNCHS;i++) {
         initResults(&results[i],dim);
     }
