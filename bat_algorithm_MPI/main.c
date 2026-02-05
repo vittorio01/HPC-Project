@@ -287,11 +287,23 @@ int main(int argc, char** argv) {
     ObjectiveFn function=NULL; 
     parseArguments(argc, argv, parameters,&function);
 
-    // Calculate actual total bats (accounts for integer division)
-    unsigned int actualTotalBats = parameters->bats * mpiProc;
+    // STRONG SCALING: The total problem size (bats) is fixed provided by user. 
+    // We divide work among processes.
+    unsigned int totalBats = parameters->bats;
+    // Each rank takes a portion. The last rank might take the remainder if not divisible.
+    unsigned int localBats = totalBats / mpiProc;
+    unsigned int remainder = totalBats % mpiProc;
+    
+    // Distribute remainder to first 'remainder' ranks
+    if (mpiId < remainder) {
+        localBats++;
+    }
+    
+    // Update parameters structure to reflect local workload
+    parameters->bats = localBats;
     
     if (mpiId == 0) {
-        printf("Bat algorithm launch with MPI processes=%d, bats per process=%d\n", mpiProc, parameters->bats);
+        printf("Bat algorithm launch with MPI processes=%d, Total Bats=%d\n", mpiProc, totalBats);
         printParameters(parameters);
     }
     
@@ -306,7 +318,7 @@ int main(int argc, char** argv) {
         MPI_Barrier(MPI_COMM_WORLD);
         start = MPI_Wtime();
         
-        batAlgorithmMPI(parameters, results, function, mpiId, mpiProc, actualTotalBats);
+        batAlgorithmMPI(parameters, results, function, mpiId, mpiProc, totalBats);
         
         MPI_Barrier(MPI_COMM_WORLD);
         end = MPI_Wtime();
@@ -325,8 +337,9 @@ int main(int argc, char** argv) {
         printf("Average execution time: %f s\n", avgTime);
 
         /* Print machine readable output for parameter search*/
+        // Restoring total bats for reporting
         unsigned int originalBats = parameters->bats;
-        parameters->bats = actualTotalBats;
+        parameters->bats = totalBats;
         printBenchmarkData(results, parameters, avgTime);
         parameters->bats = originalBats;
     }
